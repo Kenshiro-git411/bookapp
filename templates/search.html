@@ -10,7 +10,7 @@
     <main class="h-full">
         <div class="bg-slate-100 min-h-screen">
             <div class="max-w-sm mx-auto my-24 bg-white px-5 py-10 rounded shadow-2xl">
-                <form action="" method="post">
+                <form action="/search/" method="post">{% csrf_token %}
                     <div class="mt-5">
                         <label for="searchword">検索ワード</label>
                         <input type="text" class="block w-full p-2 border rounded border-gray-500" id="searchword" placeholder="" name="searchword"/>

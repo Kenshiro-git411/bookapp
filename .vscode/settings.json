@@ -2,7 +2,9 @@
     "cSpell.ignoreWords": [
         "Viewfunc",
         "bookapp",
+        "encording",
         "searchbook",
-        "searchword"
+        "searchword",
+        "urlquote"
     ]
 }
