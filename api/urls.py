@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import SearchBook
+from .views import SearchBook, SearchViewfunc
 
 urlpatterns = [
-    path('search/', SearchBook.as_view()),
+    path('', SearchViewfunc),
+    path('search/', SearchBook.as_view(), name='search'),
 ]
