@@ -1,18 +1,22 @@
 from django.db import models
 
-
+# 図書種別テーブル
 class Type(models.Model):
     type = models.CharField(max_length=5)
 
+# 著者テーブル
 class Author(models.Model):
     author = models.CharField(max_length=20)
 
+# 出版社テーブル
 class Publisher(models.Model):
     publisher = models.CharField(max_length=20)
 
+# 雑誌テーブル
 class Magazine(models.Model):
     magazine_title = models.CharField(max_length=20)
 
+# お気に入りテーブル
 class Book(models.Model):
     type = models.ManyToManyField(Type, blank=True)
     title = models.CharField(max_length=255)

@@ -1,4 +1,7 @@
 from pathlib import Path
+from datetime import timedelta
+from decouple import config
+from dj_database_url import parse as dburl
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -7,11 +10,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ufo*gy34(a80cvw#0mz5k16v65h^!9(^0h-*3#%7!$e-#6wd=w'
+SECRET_KEY = config('SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG')
 
 ALLOWED_HOSTS = []
 
@@ -25,9 +26,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework', #今回追加
+    'api.apps.ApiConfig', #今回追加
+    'corsheaders', #今回追加
+    'djoser',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware', #corsheaderを使用するために追加
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -36,6 +42,29 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# next.jsのローカルサーバからアクセスを可能にするurl
+CORS_ORIGIN_WHITELIST = [
+    "http://localhost:3000",
+]
+
+# JSON Web Token（JWT）認証を実装するためのライブラリ
+# セキュアなユーザー認証を行う
+SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('JWT',), #リクエスト認証ヘッダーで使用されるトークンタイプを示す。
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60), #アクセストークンの有効期限を示し、アクセストークンが発行されてから60分後に無効になることを示す。
+}
+
+REST_FRAMEWORK = {
+    #apiエンドポイント（url先）へのアクセスに対するデフォルトの権限クラスを指定する。
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated', #全てのエンドポイントに対してユーザーが認証されている必要があることを示す。認証されていないユーザーはエンドポイントにアクセスできないことになっている。
+    ],
+    #デフォルトの認証クラスを指定する。
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication', #JWTトークンを用いた認証方式を使用することになる。
+    ],
+}
 
 ROOT_URLCONF = 'djangobook.urls'
 
@@ -61,12 +90,16 @@ WSGI_APPLICATION = 'djangobook.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if DEBUG:
+    DATABASES = {
+        # localの場合はsqlite3を使用するように設定
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {"default": dj_database_url.config()}
 
 
 # Password validation
