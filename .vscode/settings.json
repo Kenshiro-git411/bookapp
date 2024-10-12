@@ -5,6 +5,7 @@
         "encording",
         "searchbook",
         "searchword",
-        "urlquote"
+        "urlquote",
+        "xmltodict"
     ]
 }

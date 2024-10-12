@@ -7,9 +7,12 @@
 </head>
 <body>
     {% block content %}
-        
         <div>
-            {{ context }}
+            {{for obj in context['rss']['channel']['item']}}
+
+                <p>{{obj.title}}</p>
+            
+            {{endfor}}
         </div>
     {% endblock content %}
 </body>
