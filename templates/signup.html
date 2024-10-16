@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+<body class="h-screen">
+    <div class="h-full bg-cover bg-center bg-[url('/../img/searchScreen.jpg')] flex flex-col">
+        <div id="header">
+            <header class="">
+                <div class="flex items-center justify-between p-4">
+                    <a href="#">
+                        <span class="text-xl text-white font-semibold">文献一覧作成ツール</span>
+                    </a>
+                </div>
+            </header>
+        </div>
+
+        <div id="content">
+            <div class="mt-20 sm:mx-auto sm:w-full sm:max-w-sm ">
+                <form class="space-y-6">
+                    <!-- usernameタグ -->
+                    <div>
+                        <label htmlFor="email" class="block text-sm font-medium leading-6 text-white">
+                            Username
+                        </label>
+                        <div class="mt-2">
+                            <input name="username" type="text" required autoComplete="username" class="block w-full rounded-md bg-yellow-50 border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
+                        </div>
+                    </div>
+
+                    <!-- passwordタグ -->
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <label htmlFor="password" class="block text-sm font-medium leading-6 text-white">
+                                Password
+                            </label>
+                        </div>
+                        <div class="mt-2">
+                            <input name="password" type="password" required autoComplete="current-password" class="block w-full rounded-md bg-yellow-50 border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
+                        </div>
+                    </div>
+
+                    <div class="pt-5">
+                        <button type="submit" class="m-auto flex justify-center rounded-md w-6/12 bg-yellow-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-yellow-600 hover:text-white hover:duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                            新規作成
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

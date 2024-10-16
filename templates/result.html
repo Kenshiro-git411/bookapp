@@ -8,9 +8,9 @@
 <body>
     {% block content %}
         <div>
-            {{for obj in context['rss']['channel']['item']}}
+            {{ message.rss }}
 
-                <p>{{obj.title}}</p>
+                <!-- <p></p> -->
             
             {{endfor}}
         </div>
