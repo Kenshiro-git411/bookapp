@@ -65,10 +65,25 @@ class SearchBook(TemplateView):
         # コンテキストに結果を追加
         context = self.get_context_data()
         context['message'] = data
-        print(type(data))
+        i = 0
+        book_list = []
 
-        # for item in data['rss']['channel']['item']:
-        #     print(item['title'],item['author'])
+        for item in data["rss"]["channel"]["item"]:
+            book_dict = {}
+            for key, value in item.items():
+                if key == "title" or key == "link" or key == "description":
+                    book_dict[key] = value
+                    print("-------------------------------------------------------------------------")
+                    print(f'キー: {key}')
+                    print(f'バリュー: {value}')
+                    print("-------------------------------------------------------------------------")
+
+            i += 1
+            book_list.append(book_dict)
+        print(book_list)
+        context.update({
+            "book_list": book_list
+        })
 
         # 結果をテンプレートに渡して表示
         return self.render_to_response(context)

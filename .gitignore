@@ -1,0 +1,5 @@
+venv
+db.sqlite3
+api/__pycache__
+api/migrations/__pycache__
+djangobook/__pycache__
