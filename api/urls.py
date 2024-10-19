@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import SearchBook, SearchViewfunc, Signup, UserLogin, SearchAfterViewfunc, LogoutView
+from .views import SearchBook, SearchViewfunc, Signup, UserLogin, SearchAfterViewfunc, Logout
 
 urlpatterns = [
     path('', SearchViewfunc, name=''),
@@ -7,5 +7,5 @@ urlpatterns = [
     path('signup/', Signup.as_view(), name='signup'),
     path('login/', UserLogin.as_view(), name='login'),
     path('searchafter/', SearchAfterViewfunc, name='searchafter' ),
-    path('logout/', LogoutView.as_view(), name='logout'),
+    path('logout/', Logout.as_view(), name='logout'),
 ]
