@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -8,7 +9,8 @@
 
 </head>
 <body class="h-screen">
-    <div class="h-full bg-cover bg-center bg-[url('/../img/searchScreen.jpg')] flex flex-col">
+    <div class="h-full bg-cover bg-center bg-[url('../media/searchScreen.jpg')] flex flex-col">
+        <!-- <img src="{% static '../media/searchScreen.jpg' %}" alt=""> -->
         <div id="header">
             <header class="">
                 <div class="flex items-center justify-between p-4">
@@ -21,7 +23,8 @@
 
         <div id="content">
             <div class="mt-20 sm:mx-auto sm:w-full sm:max-w-sm ">
-                <form class="space-y-6">
+                <form method="post" action="/signup/" class="space-y-6">{% csrf_token %}
+                    <div class="mt-5">
                     <!-- usernameタグ -->
                     <div>
                         <label htmlFor="email" class="block text-sm font-medium leading-6 text-white">

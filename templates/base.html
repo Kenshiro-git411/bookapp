@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <header>
+        <!-- ヘッダー全体 -->
+        <div class="items-center justify-between">
+            <!-- ヘッダーの左側 -->
+            <div class="flex items-center">
+                <span>文献一覧作成ツール</span>
+            </div>
+            <!-- ヘッダーの右側 -->
+            <div>
+                <nav class="space-x-4">
+                    <a href="{% url 'logout' %}">Logout</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    {% block content %}
+    {% endblock content %}
+
+</body>
+</html>

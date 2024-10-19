@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, CreateView
+from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth import authenticate, login
 from django.db import IntegrityError
 from django.http import HttpResponse
@@ -8,8 +9,10 @@ from urllib.parse import quote
 import xml.etree.ElementTree as ET
 import json, xmltodict
 import requests
+from django.urls import reverse_lazy
 
-# サイトにアクセスした時に表示する画面までのアクセス
+
+# 最初にサイトにアクセスした時に表示する画面までのアクセス
 def SearchViewfunc(request):
     if request.method == 'GET':
         print('検索画面の表示!')
@@ -17,6 +20,12 @@ def SearchViewfunc(request):
     # 他のメソッドに対する処理も追加
     # print('HttpResponse前')
     # return HttpResponse('このメソッドはサポートされていません。', status=405)
+
+# ログインもしくはサインアップ後の検索画面表示
+def SearchAfterViewfunc(request):
+    if request.method == 'GET':
+        print('ログインもしくはサインアップ後の検索画面表示')
+        return render(request, 'searchafter.html', {})
 
 # 検索結果画面表示のクラス
 class SearchBook(TemplateView):
@@ -65,7 +74,6 @@ class SearchBook(TemplateView):
         # コンテキストに結果を追加
         context = self.get_context_data()
         context['message'] = data
-        i = 0
         book_list = []
 
         for item in data["rss"]["channel"]["item"]:
@@ -78,7 +86,6 @@ class SearchBook(TemplateView):
                     print(f'バリュー: {value}')
                     print("-------------------------------------------------------------------------")
 
-            i += 1
             book_list.append(book_dict)
         print(book_list)
         context.update({
@@ -90,45 +97,60 @@ class SearchBook(TemplateView):
 
 
 # サインアップ処理
-class Signup(TemplateView):
+class Signup(CreateView):
     template_name = 'signup.html'
-    context_object_name = 'signup'
+    model = User
+    fields = ['username', 'password'] # 必要なフィールドを指定
+    
+    def form_valid(self, form):
+        # フォームが有効な場合の処理
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password']
 
-    def post(self, request):
-        if request.method == 'POST':
-            username = request.POST['username']
-            password = request.POST['password']
+        try:
+            # 新しいユーザーを作成
+            user = User.objects.create_user(username=username, password=password)
+            print('登録の重複はありません。登録処理を実行済みです。')
 
-            try:
-                # 登録の重複がない場合
-                user = User.objects.create_user(username, '', password)
-                print('登録の重複はありません。登録処理を実行済みです。')
-                return render(request, self.template_name, {})
-            except IntegrityError:
-                # 登録が重複した場合
-                print('登録の重複があります。登録できませんでした。')
-                return render(request, self.template_name, {'error':'このユーザーはすでに登録されています'})
+            # 自動的にログイン
+            login(self.request, user)
 
-        return render(request, self.template_name, {})
+            # リダイレクト先を指定
+            return redirect('searchafter')
+
+        except IntegrityError:
+            print('登録の重複があります。登録できませんでした。')
+            form.add_error('username', 'このユーザーはすでに登録されています')
+            return self.form_invalid(form)
+
+    def form_invalid(self, form):
+        # フォームが無効な場合の処理
+        return render(self.request, self.template_name, {'form': form})
+
 
 # ログイン処理
-class Login(TemplateView):
+class UserLogin(LoginView):
     template_name = 'login.html'
-    context_object_name = 'login'
+    redirect_authenticated_user = True  # 既にログインしているユーザーはリダイレクト
+    next_page = reverse_lazy('') # リダイレクト先
 
-    def post(self, request):
-        if request.method == 'POST':
-            username = request.POST["username"]
-            password = request.POST["password"]
-            user = authenticate(request, username=username, password=password)
+    def form_valid(self, form):
+        try:
+            # userのログインが成功する場合
+            user = form.get_user()
+            print('ユーザーが登録されていることを確認できました。')
+            login(self.request, user) # ログイン処理
+            return redirect('searchafter')
+        
+        except IntegrityError:
+            # userのログインが失敗する場合
+            print('そのユーザーは登録されておりません。')
+            return self.form_invalid(form)
 
-            if user is not None:
-                login(request, user)
-                print('ユーザーが登録されていることを確認できました')
-                return redirect('list')
-            else:
-                print('ユーザーが登録されていることを確認できませんでした')
-                return render(request, 'login.html', {'context':'not logged in'})
-
-        # GETメソッドの場合の処理
-        return render(request, self.template_name, {'context':'get method'})
+    def form_invalid(self, form):
+        print('ユーザーが登録されていることを確認できませんでした')
+        return render(self.request, self.template_name, {'form': form})
+    
+class Logout(LogoutView):
+    template_name = 'logout.html' #ログアウト後に表示するテンプレート
+    

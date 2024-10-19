@@ -2,9 +2,15 @@
     "cSpell.ignoreWords": [
         "Viewfunc",
         "bookapp",
+        "corsheader",
+        "corsheaders",
+        "dburl",
+        "djangobook",
+        "djoser",
         "encording",
         "searchbook",
         "searchword",
+        "simplejwt",
         "urlquote",
         "xmltodict"
     ]
