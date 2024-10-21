@@ -237,7 +237,7 @@ class Signup(CreateView):
             login(self.request, user)
 
             # リダイレクト先を指定
-            return redirect('searchafter')
+            return redirect('api:searchafter')
 
         except IntegrityError:
             print('登録の重複があります。登録できませんでした。')
@@ -275,10 +275,10 @@ class UserLogout(LogoutView):
     template_name = 'logout.html' #ログアウト後に表示するテンプレート
     # next_page = reverse_lazy('')
 
-    def get(self, request, *args, **kwargs):
-        # logout(request)
-        print("ログアウトします")
-        return super.get(*args, **kwargs)
+    # def get(self, request, *args, **kwargs):
+    #     # logout(request)
+    #     print("ログアウトします")
+    #     return super.get(*args, **kwargs)
 
 def Detailfunc(request):
     # requestの中身にpkが振られているから、それに該当するものを表示させる。

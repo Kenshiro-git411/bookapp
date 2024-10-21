@@ -17,7 +17,11 @@
             <!-- ヘッダーの右側 -->
             <div>
                 <nav class="space-x-4">
-                    <a href="{% url 'api:logout' %}">Logout</a>
+                  <form method="post" action="{% url "api:logout" %}">
+                    {% csrf_token %}
+                    <button type="submit">Logout</button>
+                  </form>
+
                 </nav>
             </div>
         </div>
