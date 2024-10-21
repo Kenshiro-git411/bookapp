@@ -289,3 +289,5 @@ def Detailfunc(request):
     print(json_data)
     # if request.method == 'GET':
     return redirect('detail')
+
+
