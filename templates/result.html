@@ -9,18 +9,21 @@
     {% block content %}
         <div>
             {% for book in book_list %}
-              <div style="margin-bottom: 24px; border-bottom: 1px solid black; padding-bottom: 24px">
-                <a href="#">
+              <div style="margin-bottom: 24px; border-bottom: 1px solid black; padding-bottom: 24px" value="{{ book }}">
+                <a href="{% url 'detail' %}">
                     <p style="font-weight: bold">タイトル: {{ book.title }}</p>
                 </a>
                 <div>リンク: <a href="{{ book.link }}">{{ book.link }}</a></div>
-                <p>解説: {{ book.description|safe }}</p>
+                <div><p>著者・編者: {{ book.author }}</p></div>
+                <div><p>資料種別: {{ book.category }}</p></div>
+                <div><p>出版社: {{ book.publisher }}</p></div>
+                <div><p>掲載誌: {{ book.thesis }}</p></div>
+                <div><p>掲載ページ: {{ book.page }}</p></div>
+                <div><p>出版年: {{ book.publish_year }}</p></div>
+                <!-- descriptionに入っている余分なタグを削除(descriptionにpタグなどが入っているので、|safeを付けると削除される。) -->
+                <!-- <p>解説: {{ book.description|safe }}</p> -->
               </div>
             {% endfor %}
-
-                <!-- <p></p> -->
-            
-            {{endfor}}
         </div>
     {% endblock content %}
 </body>
