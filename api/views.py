@@ -110,7 +110,7 @@ class SearchBook(TemplateView):
         
         # 出版年を統一した表記に変形
         def modify_year(year):
-            pattern = r'\b(\d{4}-\d{2}-\d{2})\b|\b(\d{4}\.\d{1,2})\b|\b(20\d{2})\b' 
+            pattern = r'\b(\d{4}-\d{2}-\d{2})\b|\b(\d{4}\.\d{1,2})\b|\b(20\d{2})\b'
             print(year)
             matches = re.findall(pattern, year)
             extracted_dates = [match[0] if match[0] else match[1] for match in matches]
@@ -118,13 +118,13 @@ class SearchBook(TemplateView):
             return extracted_dates
 
         # データ内容確認コード（※使用しないときはコメントアウトにしておく）
-        # i = 0
-        # for item in data["rss"]["channel"]["item"]:
-        #     if i < 10:
-        #         print(item)
-        #         i += 1
-        #     else:
-        #         break
+        i = 0
+        for item in data["rss"]["channel"]["item"]:
+            if i < 10:
+                print(item)
+                i += 1
+            else:
+                break
 
 
         i = 0

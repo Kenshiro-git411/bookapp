@@ -10,7 +10,7 @@
         <div>
             {% for book in book_list %}
               <div style="margin-bottom: 24px; border-bottom: 1px solid black; padding-bottom: 24px" value="{{ book }}">
-                <a href="{% url 'detail' %}">
+                <a href="{% url 'api:detail' %}">
                     <p style="font-weight: bold">タイトル: {{ book.title }}</p>
                 </a>
                 <div>リンク: <a href="{{ book.link }}">{{ book.link }}</a></div>
