@@ -9,7 +9,7 @@
 
 </head>
 <body class="h-screen">
-    <div class="h-full bg-cover bg-center bg-[url('{% static "img/searchScreen.jpg" %}')] flex flex-col">
+ <div class="h-full bg-cover bg-center bg-[url('{% static "img/searchScreen.jpg" %}')] flex flex-col">
         <div id="header">
             <header class="">
                 <div class="flex items-center justify-between p-4">
@@ -22,7 +22,7 @@
 
         <div id="content">
             <div class="mt-20 sm:mx-auto sm:w-full sm:max-w-sm ">
-                <form class="space-y-6">
+                <form method="post" action="/login/" class="space-y-6">{% csrf_token %}
                     <!-- usernameタグ -->
                     <div>
                         <label htmlFor="email" class="block text-sm font-medium leading-6 text-white">
