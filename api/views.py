@@ -260,7 +260,7 @@ class UserLogin(LoginView):
             user = form.get_user()
             print('ユーザーが登録されていることを確認できました。')
             login(self.request, user) # ログイン処理
-            return redirect('searchafter')
+            return redirect('api:searchafter')
         
         except IntegrityError:
             # userのログインが失敗する場合
@@ -276,8 +276,9 @@ class UserLogout(LogoutView):
     # next_page = reverse_lazy('')
 
     def get(self, request, *args, **kwargs):
-        logout(request)
-        redirect('accounts:/')
+        # logout(request)
+        print("ログアウトします")
+        return super.get(*args, **kwargs)
 
 def Detailfunc(request):
     # requestの中身にpkが振られているから、それに該当するものを表示させる。
