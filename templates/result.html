@@ -17,8 +17,10 @@
                 <div><p>著者・編者: {{ book.author }}</p></div>
                 <div><p>資料種別: {{ book.category }}</p></div>
                 <div><p>出版社: {{ book.publisher }}</p></div>
-                <div><p>掲載誌: {{ book.thesis }}</p></div>
-                <div><p>掲載ページ: {{ book.page }}</p></div>
+                {% if book.category == "記事" %}
+                    <div><p>掲載誌: {{ book.thesis }}</p></div>
+                    <div><p>掲載ページ: {{ book.page }}</p></div>
+                {% endif %}
                 <div><p>出版年: {{ book.publish_year }}</p></div>
                 <!-- descriptionに入っている余分なタグを削除(descriptionにpタグなどが入っているので、|safeを付けると削除される。) -->
                 <!-- <p>解説: {{ book.description|safe }}</p> -->

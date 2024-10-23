@@ -1,13 +1,18 @@
 {
     "cSpell.ignoreWords": [
+        "Detailfunc",
         "Viewfunc",
         "bookapp",
         "corsheader",
         "corsheaders",
         "dburl",
+        "dcterms",
         "djangobook",
         "djoser",
         "encording",
+        "fullwidth",
+        "halfwidth",
+        "searchafter",
         "searchbook",
         "searchword",
         "simplejwt",

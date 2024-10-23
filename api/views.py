@@ -109,22 +109,73 @@ class SearchBook(TemplateView):
             return re_dict
         
         # 出版年を統一した表記に変形
-        def modify_year(year):
-            pattern = r'\b(\d{4}-\d{2}-\d{2})\b|\b(\d{4}\.\d{1,2})\b|\b(20\d{2})\b'
-            print(year)
-            matches = re.findall(pattern, year)
-            extracted_dates = [match[0] if match[0] else match[1] for match in matches]
-            print('抽出した日付や年:', extracted_dates)
-            return extracted_dates
+        def modify_date(pre_dates):
+            # print(pre_dates)
+            # print(type(pre_dates))
+
+            # 正規表現のパターンを作成
+            pattern = r'\b(\d{4})\s*[-.,]\s*(\d{1,2})\s*[-.,]\s*(\d{1,2})\b|\b(\d{4})\s*[-.,]\s*(\d{1,2})\b|\b(\d{4})\b'
+
+            # 全角を半角に変換するための変換テーブルを作成
+            fullwidth = "１２３４５６７８９０．"
+            halfwidth = "1234567890."
+
+            # 変換テーブルを使って変換
+            translation_table = str.maketrans(fullwidth, halfwidth)
+            # print(f'translation_table内容: {translation_table}')
+            pre_dates = pre_dates.translate(translation_table)
+
+            # 書き換え関数
+            def convert_date(match):
+                if match.group(1) and match.group(2) and match.group(3):  # YYYY-MM-DD形式
+                    year, month, day = match.group(1), match.group(2), match.group(3)
+                    return f"{int(year)}年{int(month)}月{int(day)}日"
+                elif match.group(4) and match.group(5):  # YYYY-MM形式
+                    year, month = match.group(4), match.group(5)
+                    return f"{int(year)}年{int(month)}月"
+                elif match.group(6):  # YYYY形式
+                    year = match.group(6)
+                    return f"{int(year)}年"
+                else:
+                    year = None
+                    return year
+
+            # 日付を変換
+            converted_dates = re.sub(pattern, convert_date, pre_dates) 
+
+            # 日付の正しい表記確認
+            pattern = r'(\d{4})年(\d{1,2})月(\d{1,2})日|\b(\d{4})年(\d{1,2})月|\b(\d{4})年'
+            match = re.match(pattern, converted_dates)
+            if match:
+                print(f"適切な表記に変換済み: {converted_dates}")
+                # print("Groups:", match.groups())
+                return converted_dates
+            else:
+                print(f"表記が不正: {converted_dates}")
+                converted_dates = "N/A"
+                return converted_dates
+        
+        def pub_date(pre_dates):
+            # 月の名前を数字に変換する辞書
+            month_map = {
+                'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
+                'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08',
+                'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
+            }
+            # 日付と月を抽出
+            month = month_map[pre_dates[2]]
+            year = pre_dates[3]
+
+            return f'{year}年{month}月'
 
         # データ内容確認コード（※使用しないときはコメントアウトにしておく）
-        i = 0
-        for item in data["rss"]["channel"]["item"]:
-            if i < 10:
-                print(item)
-                i += 1
-            else:
-                break
+        # i = 0
+        # for item in data["rss"]["channel"]["item"]:
+        #     if i < 10:
+        #         print(item)
+        #         i += 1
+        #     else:
+        #         break
 
 
         i = 0
@@ -164,7 +215,9 @@ class SearchBook(TemplateView):
                         print("-------------------------------------------------------------------------")
 
                     elif key == "dc:publisher":
+                    # 出版社
                         key = "publisher"
+                        print(f'value: {value}')
                         book_dict[key] = value
                         print("-------------------------------------------------------------------------")
                         print(f'キー: {key}')
@@ -195,14 +248,39 @@ class SearchBook(TemplateView):
                     elif key == "dcterms:issued":
                     # 出版年(key=publish_year)
                         key = "publish_year"
-                        value = modify_year(value)
-                        book_dict[key] = value
+                        converted_dates = modify_date(value)
+                        # 結果を表示
+                        # for original, converted in zip(value, converted_dates):
+                        #     print(f"{original} -> {converted}")
+                        book_dict[key] = converted_dates
                         print("-------------------------------------------------------------------------")
                         print(f'キー: {key}')
-                        print(f'バリュー: {value}')
+                        print(f'バリュー: {converted_dates}')
                         print("-------------------------------------------------------------------------")
 
-                # print(f'1つのbook_dictの内容:{book_dict}')
+                # 出版社をはじめからjsonで持っていないデータの処理
+                if "publisher" not in book_dict:
+                    key = "publisher"
+                    value = "N/A"
+                    book_dict[key] = value
+                    print("-------------------------------------------------------------------------")
+                    print(f'キー: {key}')
+                    print(f'バリュー: {value}')
+                    print("-------------------------------------------------------------------------")
+                    # print(f'出版社がないdict: {book_dict}')
+
+                # 出版年に空白またNoneが入っているデータの処理
+                if "publish_year" not in book_dict or book_dict["publish_year"] == "N/A":
+                    key = "publish_year"
+                    find_key = "pubDate"
+                    tmp_pub_dates = data["rss"]["channel"]["item"][0].get(find_key)
+                    # print(f'tmp_pub_dates: {tmp_pub_dates}')
+                    tmp_pub_dates = tmp_pub_dates.split()
+                    # print(f'tmp_pub_dates: {tmp_pub_dates}')
+                    value = pub_date(tmp_pub_dates)
+                    book_dict[key] = value
+
+                print(f'1つのbook_dictの内容: {book_dict}')
                 book_list.append(book_dict)
                 print('1セット終了です。')
 
@@ -273,12 +351,6 @@ class UserLogin(LoginView):
     
 class UserLogout(LogoutView):
     template_name = 'logout.html' #ログアウト後に表示するテンプレート
-    # next_page = reverse_lazy('')
-
-    # def get(self, request, *args, **kwargs):
-    #     # logout(request)
-    #     print("ログアウトします")
-    #     return super.get(*args, **kwargs)
 
 def Detailfunc(request):
     # requestの中身にpkが振られているから、それに該当するものを表示させる。
