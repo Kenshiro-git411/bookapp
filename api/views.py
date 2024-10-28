@@ -16,12 +16,20 @@ import re
 from django.views.generic import ListView
 from django.views import View
 from .models import Book
+from django.core.paginator import Paginator
 
 # 最初にサイトにアクセスした時に表示する画面までのアクセス
 def SearchViewfunc(request):
     if request.method == 'GET':
         print('検索画面の表示!')
-        return render(request, 'search.html', {})
+        # sessionに保存されている前回の検索ワードを取り出してくる
+        searchword = request.session.get("searchword", "")
+        book_list = request.session.get("book_list", "")
+
+        print(book_list)
+        return render(request, 'search.html', {
+            "search_word": searchword
+        })
     # 他のメソッドに対する処理も追加
     # print('HttpResponse前')
     # return HttpResponse('このメソッドはサポートされていません。', status=405)
@@ -44,6 +52,9 @@ class SearchBook(TemplateView):
 
         # フォームから入力された検索ワードを取得
         searchword = request.POST.get('searchword', '')
+
+        # 検索ワードをsessionに保存する
+        self.request.session["searchword"] = searchword
 
         # フォームから入力された検索ワードをエンコードする
         encoding_searchword = quote(searchword)
@@ -290,12 +301,34 @@ class SearchBook(TemplateView):
                 i += 1
             else:
                 break
-        context.update({
-            "book_list": book_list
-        })
 
-        # 結果をテンプレートに渡して表示
-        return self.render_to_response(context)
+        # book_listをsessionに保存する
+        self.request.session["book_list"] = book_list
+        print(str(book_list))
+
+        # ページネーションつきのページにリダイレクトさせる
+        return redirect("api:search-result")
+
+        # context.update({
+        #     "book_list": book_list
+        # })
+        #
+        # # 結果をテンプレートに渡して表示
+        # return self.render_to_response(context)
+
+
+def paginated_view(request):
+    # セッションからデータを取得
+    api_data = request.session.get('book_list')
+
+    # Paginatorの設定 (1ページに表示するアイテム数を指定)
+    paginator = Paginator(api_data, 3)  # 1ページに10件表示
+
+    # 現在のページ番号を取得
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'result.html', {'page_obj': page_obj})
 
 
 # サインアップ処理
