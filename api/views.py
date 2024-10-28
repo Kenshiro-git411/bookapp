@@ -332,6 +332,12 @@ def paginated_view(request):
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
 
+    if request.method == "POST":
+        print(request.POST)
+        print(request.POST.get("title"))
+        # DBへの保存処理を書く↓
+
+
     return render(request, 'result.html', {'page_obj': page_obj})
 
 

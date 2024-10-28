@@ -10,9 +10,10 @@
         <a href="{% url "api:top" %}">TOPページへ戻る</a>
         <div>
             {% for book in page_obj %}
-                <!-- <form method="post" action="/favorite/">{% csrf_token %} -->
+                <form method="post" action="">{% csrf_token %}
                     <div style="margin-bottom: 24px; border-bottom: 1px solid black; padding-bottom: 24px" value="{{ book }}">
                         <p name="title" style="font-weight: bold">タイトル: {{ book.title }}</p>
+                        <input name="title" type="hidden" value="{{ book.title }}">
                         <div><p name="author">著者・編者: {{ book.author }}</p></div>
                         <div><p name="category">資料種別: {{ book.category }}</p></div>
                         <div><p>出版社: {{ book.publisher }}</p></div>
@@ -26,7 +27,7 @@
                             <button type="submit">お気に入り</button>
                         </div>
                     </div>
-                <!-- </form> -->
+                </form>
             {% endfor %}
         </div>
       <div class="pagination">
