@@ -17,7 +17,7 @@ from django.views.generic import ListView
 from django.views import View
 from .models import Book
 from django.core.paginator import Paginator
-
+from django.contrib import messages
 # 最初にサイトにアクセスした時に表示する画面までのアクセス
 def SearchViewfunc(request):
     if request.method == 'GET':
@@ -69,245 +69,249 @@ class SearchBook(TemplateView):
         # print(response)
 
         #レスポンスが正常だった場合
-        if response.status_code == 200:
-            xml_data = response.content
-            # print(xml_data)
+        try:
+            if response.status_code == 200:
+                xml_data = response.content
+                # print(xml_data)
 
-            # XMLデータをパースする
-            root = xmltodict.parse(xml_data)
-            # print(root)
+                # XMLデータをパースする
+                root = xmltodict.parse(xml_data)
+                # print(root)
 
-            # 辞書をJSON形式に変換
-            data = json.dumps(root, ensure_ascii=False, indent=2)
+                # 辞書をJSON形式に変換
+                data = json.dumps(root, ensure_ascii=False, indent=2)
 
-            # JSONデータを辞書に変換
-            data = json.loads(data)
+                # JSONデータを辞書に変換
+                data = json.loads(data)
 
-        else:
-            # エラーハンドリング
-            data = {}
-
-        # コンテキストに結果を追加
-        context = self.get_context_data()
-        context['message'] = data
-        book_list = []
-
-        # カンマごとでリストの格納位置を変える関数(最初のデータの持ち方が悪い場合、正しく表示できない。['小林','正一']など)
-        def modify_string(value):
-            # jsonのauthorに値が何も入っていない場合
-            if not value:
-                pass
-            # jsonのauthorに値が入っている場合
             else:
-                # print(f'Type of value: {type(value)}')
-                # print(value)
-                valList = value.split(',',2)
-                # print(valList)
-                valList = [st for st in valList if ',' not in st]
-                # print(f'valList:{valList[0]}')
-                author_name = ''.join(valList[:2])
-                return author_name
+                # エラーハンドリング
+                data = {}
 
-        # 論文雑誌名とページ数を抽出する
-        def modify_dict(dict):
-            # print("modify_dict関数")
-            # print(type(dict))
-            data = re.split(r'[：, ,/,]', dict)
-            data = data[1:len(data)]
-            re_dict = {
-                "thesis": data[0], # 掲載論文名
-                "page": data[len(data)-1] # 論文ページ(始まり～終わり)
-            }
-            # print(re_dict)
-            # print(data)
-            return re_dict
-        
-        # 出版年を統一した表記に変形
-        def modify_date(pre_dates):
-            # print(pre_dates)
-            # print(type(pre_dates))
+            # コンテキストに結果を追加
+            context = self.get_context_data()
+            context['message'] = data
+            book_list = []
 
-            # 正規表現のパターンを作成
-            pattern = r'\b(\d{4})\s*[-.,]\s*(\d{1,2})\s*[-.,]\s*(\d{1,2})\b|\b(\d{4})\s*[-.,]\s*(\d{1,2})\b|\b(\d{4})\b'
-
-            # 全角を半角に変換するための変換テーブルを作成
-            fullwidth = "１２３４５６７８９０．"
-            halfwidth = "1234567890."
-
-            # 変換テーブルを使って変換
-            translation_table = str.maketrans(fullwidth, halfwidth)
-            # print(f'translation_table内容: {translation_table}')
-            pre_dates = pre_dates.translate(translation_table)
-
-            # 書き換え関数
-            def convert_date(match):
-                if match.group(1) and match.group(2) and match.group(3):  # YYYY-MM-DD形式
-                    year, month, day = match.group(1), match.group(2), match.group(3)
-                    return f"{int(year)}年{int(month)}月{int(day)}日"
-                elif match.group(4) and match.group(5):  # YYYY-MM形式
-                    year, month = match.group(4), match.group(5)
-                    return f"{int(year)}年{int(month)}月"
-                elif match.group(6):  # YYYY形式
-                    year = match.group(6)
-                    return f"{int(year)}年"
+            # カンマごとでリストの格納位置を変える関数(最初のデータの持ち方が悪い場合、正しく表示できない。['小林','正一']など)
+            def modify_string(value):
+                # jsonのauthorに値が何も入っていない場合
+                if not value:
+                    pass
+                # jsonのauthorに値が入っている場合
                 else:
-                    year = None
-                    return year
+                    # print(f'Type of value: {type(value)}')
+                    # print(value)
+                    valList = value.split(',',2)
+                    # print(valList)
+                    valList = [st for st in valList if ',' not in st]
+                    # print(f'valList:{valList[0]}')
+                    author_name = ''.join(valList[:2])
+                    return author_name
 
-            # 日付を変換
-            converted_dates = re.sub(pattern, convert_date, pre_dates) 
+            # 論文雑誌名とページ数を抽出する
+            def modify_dict(dict):
+                # print("modify_dict関数")
+                # print(type(dict))
+                data = re.split(r'[：, ,/,]', dict)
+                data = data[1:len(data)]
+                re_dict = {
+                    "thesis": data[0], # 掲載論文名
+                    "page": data[len(data)-1] # 論文ページ(始まり～終わり)
+                }
+                # print(re_dict)
+                # print(data)
+                return re_dict
 
-            # 日付の正しい表記確認
-            pattern = r'(\d{4})年(\d{1,2})月(\d{1,2})日|\b(\d{4})年(\d{1,2})月|\b(\d{4})年'
-            match = re.match(pattern, converted_dates)
-            if match:
-                print(f"適切な表記に変換済み: {converted_dates}")
-                # print("Groups:", match.groups())
-                return converted_dates
-            else:
-                print(f"表記が不正: {converted_dates}")
-                converted_dates = "N/A"
-                return converted_dates
-        
-        def pub_date(pre_dates):
-            # 月の名前を数字に変換する辞書
-            month_map = {
-                'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
-                'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08',
-                'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
-            }
-            # 日付と月を抽出
-            month = month_map[pre_dates[2]]
-            year = pre_dates[3]
+            # 出版年を統一した表記に変形
+            def modify_date(pre_dates):
+                # print(pre_dates)
+                # print(type(pre_dates))
 
-            return f'{year}年{month}月'
+                # 正規表現のパターンを作成
+                pattern = r'\b(\d{4})\s*[-.,]\s*(\d{1,2})\s*[-.,]\s*(\d{1,2})\b|\b(\d{4})\s*[-.,]\s*(\d{1,2})\b|\b(\d{4})\b'
 
-        # データ内容確認コード（※使用しないときはコメントアウトにしておく）
-        # i = 0
-        # for item in data["rss"]["channel"]["item"]:
-        #     if i < 10:
-        #         print(item)
-        #         i += 1
-        #     else:
-        #         break
+                # 全角を半角に変換するための変換テーブルを作成
+                fullwidth = "１２３４５６７８９０．"
+                halfwidth = "1234567890."
+
+                # 変換テーブルを使って変換
+                translation_table = str.maketrans(fullwidth, halfwidth)
+                # print(f'translation_table内容: {translation_table}')
+                pre_dates = pre_dates.translate(translation_table)
+
+                # 書き換え関数
+                def convert_date(match):
+                    if match.group(1) and match.group(2) and match.group(3):  # YYYY-MM-DD形式
+                        year, month, day = match.group(1), match.group(2), match.group(3)
+                        return f"{int(year)}年{int(month)}月{int(day)}日"
+                    elif match.group(4) and match.group(5):  # YYYY-MM形式
+                        year, month = match.group(4), match.group(5)
+                        return f"{int(year)}年{int(month)}月"
+                    elif match.group(6):  # YYYY形式
+                        year = match.group(6)
+                        return f"{int(year)}年"
+                    else:
+                        year = None
+                        return year
+
+                # 日付を変換
+                converted_dates = re.sub(pattern, convert_date, pre_dates)
+
+                # 日付の正しい表記確認
+                pattern = r'(\d{4})年(\d{1,2})月(\d{1,2})日|\b(\d{4})年(\d{1,2})月|\b(\d{4})年'
+                match = re.match(pattern, converted_dates)
+                if match:
+                    print(f"適切な表記に変換済み: {converted_dates}")
+                    # print("Groups:", match.groups())
+                    return converted_dates
+                else:
+                    print(f"表記が不正: {converted_dates}")
+                    converted_dates = "N/A"
+                    return converted_dates
+
+            def pub_date(pre_dates):
+                # 月の名前を数字に変換する辞書
+                month_map = {
+                    'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
+                    'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08',
+                    'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
+                }
+                # 日付と月を抽出
+                month = month_map[pre_dates[2]]
+                year = pre_dates[3]
+
+                return f'{year}年{month}月'
+
+            # データ内容確認コード（※使用しないときはコメントアウトにしておく）
+            # i = 0
+            # for item in data["rss"]["channel"]["item"]:
+            #     if i < 10:
+            #         print(item)
+            #         i += 1
+            #     else:
+            #         break
 
 
-        i = 0
-        for item in data["rss"]["channel"]["item"]:
-            book_dict = {}
-            if i < 10:
-                for key, value in item.items():
-                    if key == "title" or key == "link":
-                    # タイトル
-                        book_dict[key] = value
-                        print("-------------------------------------------------------------------------")
-                        print(f'キー: {key}')
-                        print(f'バリュー: {value}')
-                        print("-------------------------------------------------------------------------")
+            i = 0
+            for item in data["rss"]["channel"]["item"]:
+                book_dict = {}
+                if i < 10:
+                    for key, value in item.items():
+                        if key == "title" or key == "link":
+                        # タイトル
+                            book_dict[key] = value
+                            print("-------------------------------------------------------------------------")
+                            print(f'キー: {key}')
+                            print(f'バリュー: {value}')
+                            print("-------------------------------------------------------------------------")
 
-                    elif key == "dc:creator":
-                    # 著者・編者
-                        key = "author"
-                        # authorは、リストの最後にもっている値が正式にNDLでも使用されてるっぽい。
-                        # print(f'value:{value}')
-                        authorString = modify_string(value)
-                        # print(authorString)
-                        book_dict[key] = authorString
-                        print("-------------------------------------------------------------------------")
-                        print(f'キー: {key}')
-                        print(f'バリュー: {authorString}')
-                        print("-------------------------------------------------------------------------")
+                        elif key == "dc:creator":
+                        # 著者・編者
+                            key = "author"
+                            # authorは、リストの最後にもっている値が正式にNDLでも使用されてるっぽい。
+                            # print(f'value:{value}')
+                            authorString = modify_string(value)
+                            # print(authorString)
+                            book_dict[key] = authorString
+                            print("-------------------------------------------------------------------------")
+                            print(f'キー: {key}')
+                            print(f'バリュー: {authorString}')
+                            print("-------------------------------------------------------------------------")
 
-                    elif key == "category":
-                    # 資料種別
-                        # valueがリストになっている。リストの1つ目が資料種別、2つ目が資料形態？
-                        val = value[0]
-                        book_dict[key] = val
-                        print("-------------------------------------------------------------------------")
-                        print(f'キー: {key}')
-                        print(f'バリュー: {val}')
-                        print("-------------------------------------------------------------------------")
+                        elif key == "category":
+                        # 資料種別
+                            # valueがリストになっている。リストの1つ目が資料種別、2つ目が資料形態？
+                            val = value[0]
+                            book_dict[key] = val
+                            print("-------------------------------------------------------------------------")
+                            print(f'キー: {key}')
+                            print(f'バリュー: {val}')
+                            print("-------------------------------------------------------------------------")
 
-                    elif key == "dc:publisher":
-                    # 出版社
+                        elif key == "dc:publisher":
+                        # 出版社
+                            key = "publisher"
+                            print(f'value: {value}')
+                            book_dict[key] = value
+                            print("-------------------------------------------------------------------------")
+                            print(f'キー: {key}')
+                            print(f'バリュー: {value}')
+                            print("-------------------------------------------------------------------------")
+
+                        elif key == "dc:description":
+                        # 雑誌名(key=thesis)、ページ数(key=page)
+                            # print(value)
+                            # print(type(value))
+                            # print(f'descriptionのbook_dict:{book_dict}')
+                            if "記事" in book_dict.values():
+                                # print('dc:descriptionの表示')
+                                # print(f'バリュー: {value}')
+                                tmp_dict = modify_dict(value)
+
+                                # 雑誌名とページ数が1つの辞書に入っているのでひとつずつ抽出
+                                for key, val in tmp_dict.items():
+                                    # print(f'tmp_dict: {tmp_dict}')
+                                    book_dict[key] = val
+                                    print("-------------------------------------------------------------------------")
+                                    print(f'キー: {key}')
+                                    print(f'バリュー: {val}')
+                                    print("-------------------------------------------------------------------------")
+                            else:
+                                pass
+
+                        elif key == "dcterms:issued":
+                        # 出版年(key=publish_year)
+                            key = "publish_year"
+                            converted_dates = modify_date(value)
+                            # 結果を表示
+                            # for original, converted in zip(value, converted_dates):
+                            #     print(f"{original} -> {converted}")
+                            book_dict[key] = converted_dates
+                            print("-------------------------------------------------------------------------")
+                            print(f'キー: {key}')
+                            print(f'バリュー: {converted_dates}')
+                            print("-------------------------------------------------------------------------")
+
+                    # 出版社をはじめからjsonで持っていないデータの処理
+                    if "publisher" not in book_dict:
                         key = "publisher"
-                        print(f'value: {value}')
+                        value = "N/A"
                         book_dict[key] = value
                         print("-------------------------------------------------------------------------")
                         print(f'キー: {key}')
                         print(f'バリュー: {value}')
                         print("-------------------------------------------------------------------------")
+                        # print(f'出版社がないdict: {book_dict}')
 
-                    elif key == "dc:description":
-                    # 雑誌名(key=thesis)、ページ数(key=page)
-                        # print(value)
-                        # print(type(value))
-                        # print(f'descriptionのbook_dict:{book_dict}')
-                        if "記事" in book_dict.values():
-                            # print('dc:descriptionの表示')
-                            # print(f'バリュー: {value}')
-                            tmp_dict = modify_dict(value)
-
-                            # 雑誌名とページ数が1つの辞書に入っているのでひとつずつ抽出
-                            for key, val in tmp_dict.items():
-                                # print(f'tmp_dict: {tmp_dict}')
-                                book_dict[key] = val
-                                print("-------------------------------------------------------------------------")
-                                print(f'キー: {key}')
-                                print(f'バリュー: {val}')
-                                print("-------------------------------------------------------------------------")
-                        else:
-                            pass
-
-                    elif key == "dcterms:issued":
-                    # 出版年(key=publish_year)
+                    # 出版年に空白またNoneが入っているデータの処理
+                    if "publish_year" not in book_dict or book_dict["publish_year"] == "N/A":
                         key = "publish_year"
-                        converted_dates = modify_date(value)
-                        # 結果を表示
-                        # for original, converted in zip(value, converted_dates):
-                        #     print(f"{original} -> {converted}")
-                        book_dict[key] = converted_dates
-                        print("-------------------------------------------------------------------------")
-                        print(f'キー: {key}')
-                        print(f'バリュー: {converted_dates}')
-                        print("-------------------------------------------------------------------------")
+                        find_key = "pubDate"
+                        tmp_pub_dates = data["rss"]["channel"]["item"][0].get(find_key)
+                        # print(f'tmp_pub_dates: {tmp_pub_dates}')
+                        tmp_pub_dates = tmp_pub_dates.split()
+                        # print(f'tmp_pub_dates: {tmp_pub_dates}')
+                        value = pub_date(tmp_pub_dates)
+                        book_dict[key] = value
 
-                # 出版社をはじめからjsonで持っていないデータの処理
-                if "publisher" not in book_dict:
-                    key = "publisher"
-                    value = "N/A"
-                    book_dict[key] = value
-                    print("-------------------------------------------------------------------------")
-                    print(f'キー: {key}')
-                    print(f'バリュー: {value}')
-                    print("-------------------------------------------------------------------------")
-                    # print(f'出版社がないdict: {book_dict}')
+                    print(f'1つのbook_dictの内容: {book_dict}')
+                    book_list.append(book_dict)
+                    print('1セット終了です。')
 
-                # 出版年に空白またNoneが入っているデータの処理
-                if "publish_year" not in book_dict or book_dict["publish_year"] == "N/A":
-                    key = "publish_year"
-                    find_key = "pubDate"
-                    tmp_pub_dates = data["rss"]["channel"]["item"][0].get(find_key)
-                    # print(f'tmp_pub_dates: {tmp_pub_dates}')
-                    tmp_pub_dates = tmp_pub_dates.split()
-                    # print(f'tmp_pub_dates: {tmp_pub_dates}')
-                    value = pub_date(tmp_pub_dates)
-                    book_dict[key] = value
+                    i += 1
+                else:
+                    break
 
-                print(f'1つのbook_dictの内容: {book_dict}')
-                book_list.append(book_dict)
-                print('1セット終了です。')
+            # book_listをsessionに保存する
+            self.request.session["book_list"] = book_list
+            print(str(book_list))
 
-                i += 1
-            else:
-                break
-
-        # book_listをsessionに保存する
-        self.request.session["book_list"] = book_list
-        print(str(book_list))
-
-        # ページネーションつきのページにリダイレクトさせる
-        return redirect("api:search-result")
+            # ページネーションつきのページにリダイレクトさせる
+            return redirect("api:search-result")
+        except:
+            messages.info(request, "検索結果はありません。")
+            return redirect("api:top")
 
         # context.update({
         #     "book_list": book_list
