@@ -366,14 +366,14 @@ def Detailfunc(request):
     return redirect('detail')
 
 
-# class FavoriteView(View):
-#     template_name = 'favorite.html'
-#     def post(self, request, *args, **kwargs):
-#         title = request.POST.get('title')
-#         author = request.POST.get('author')
+class FavoriteView(View):
+    template_name = 'favorite.html'
+    def post(self, request, *args, **kwargs):
+        title = request.POST.get('title')
+        author = request.POST.get('author')
 
-#         book = Book(title=title, author=author)
-#         book.save()
+        book = Book(title=title, author=author)
+        book.save()
 
-#         return redirect('favorite')
+        return redirect('favorite')
 
