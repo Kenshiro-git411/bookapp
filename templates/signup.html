@@ -9,49 +9,48 @@
 
 </head>
 <body class="h-screen">
-    <div class="h-full bg-cover bg-center bg-[url('{% static "img/searchScreen.jpg" %}')] flex flex-col">
-        <div id="header">
-            <header class="">
-                <div class="flex items-center justify-between p-4">
-                    <a href="#">
-                        <span class="text-xl text-white font-semibold">文献一覧作成ツール</span>
-                    </a>
+    <div class="h-full bg-cover bg-center bg-white flex flex-col">
+        <div class="flex flex-col items-center justify-center h-screen">
+            <div class="w-1/3">
+                <div id="title" class="pb-2">
+                    <span class="text-2xl font-bold">Signup</span>
                 </div>
-            </header>
-        </div>
-
-        <div id="content">
-            <div class="mt-20 sm:mx-auto sm:w-full sm:max-w-sm ">
-                <form method="post" action="/signup/" class="space-y-6">{% csrf_token %}
-                    <div class="mt-5">
-                    <!-- usernameタグ -->
-                    <div>
-                        <label htmlFor="email" class="block text-sm font-medium leading-6 text-white">
-                            Username
-                        </label>
-                        <div class="mt-2">
-                            <input name="username" type="text" required autoComplete="username" class="block w-full rounded-md bg-yellow-50 border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
-                        </div>
-                    </div>
-
-                    <!-- passwordタグ -->
-                    <div>
-                        <div class="flex items-center justify-between">
-                            <label htmlFor="password" class="block text-sm font-medium leading-6 text-white">
-                                Password
+            </div>
+            <div id="content" class="flex items-center justify-center bg-gray-200 mx-10 mb-10 w-1/3 h-3/5 shadow-md">
+                <div class="w-full mx-10 h-4/5">
+                    <form method="post" action="/login/" class="space-y-6 px-16">{% csrf_token %}
+                        <!-- usernameタグ -->
+                        <div class="">
+                            <label htmlFor="email" class="block text-sm font-medium leading-6">
+                                ユーザー名
                             </label>
+                            <div class="mt-2">
+                                <input name="username" type="text" required autoComplete="username" placeholder="ユーザー名を入力してください" class="block w-full border-0 px-2 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6"/>
+                            </div>
                         </div>
-                        <div class="mt-2">
-                            <input name="password" type="password" required autoComplete="current-password" class="block w-full rounded-md bg-yellow-50 border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
-                        </div>
-                    </div>
 
-                    <div class="pt-5">
-                        <button type="submit" class="m-auto flex justify-center rounded-md w-6/12 bg-yellow-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-yellow-600 hover:text-white hover:duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                            新規作成
-                        </button>
+                        <!-- passwordタグ -->
+                        <div class="">
+                            <div class="flex items-center justify-between">
+                                <label htmlFor="password" class="block text-sm font-medium leading-6">
+                                    パスワード
+                                </label>
+                            </div>
+                            <div class="mt-2">
+                                <input name="password" type="password" required autoComplete="current-password" placeholder="パスワードを入力してください" class="block w-full border-0 px-2 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6"/>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-center pt-5">
+                            <button type="submit" class="flex justify-center w-full py-2 mb-5 tracking-widest bg-black text-sm text-white font-semibold leading-6 shadow-sm hover:bg-white hover:text-black hover:duration-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                                アカウントを作成
+                            </button>
+                        </div>
+                    </form>
+                    <div class="pb-4 text-center">
+                        <a href="{% url 'api:login' %}">ログインの方はクリック</a>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>

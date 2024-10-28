@@ -9,22 +9,23 @@
     {% block content %}
         <div>
             {% for book in book_list %}
-              <div style="margin-bottom: 24px; border-bottom: 1px solid black; padding-bottom: 24px" value="{{ book }}">
-                <a href="{% url 'api:detail' %}">
-                    <p style="font-weight: bold">タイトル: {{ book.title }}</p>
-                </a>
-                <div>リンク: <a href="{{ book.link }}">{{ book.link }}</a></div>
-                <div><p>著者・編者: {{ book.author }}</p></div>
-                <div><p>資料種別: {{ book.category }}</p></div>
-                <div><p>出版社: {{ book.publisher }}</p></div>
-                {% if book.category == "記事" %}
-                    <div><p>掲載誌: {{ book.thesis }}</p></div>
-                    <div><p>掲載ページ: {{ book.page }}</p></div>
-                {% endif %}
-                <div><p>出版年: {{ book.publish_year }}</p></div>
-                <!-- descriptionに入っている余分なタグを削除(descriptionにpタグなどが入っているので、|safeを付けると削除される。) -->
-                <!-- <p>解説: {{ book.description|safe }}</p> -->
-              </div>
+                <!-- <form method="post" action="/favorite/">{% csrf_token %} -->
+                    <div style="margin-bottom: 24px; border-bottom: 1px solid black; padding-bottom: 24px" value="{{ book }}">
+                        <p name="title" style="font-weight: bold">タイトル: {{ book.title }}</p>
+                        <div><p name="author">著者・編者: {{ book.author }}</p></div>
+                        <div><p name="category">資料種別: {{ book.category }}</p></div>
+                        <div><p>出版社: {{ book.publisher }}</p></div>
+                        {% if book.category == "記事" %}
+                        <div><p>掲載誌: {{ book.thesis }}</p></div>
+                        <div><p>掲載ページ: {{ book.page }}</p></div>
+                        {% endif %}
+                        <div><p>出版年: {{ book.publish_year }}</p></div>
+                        <div>リンク: <a href="{{ book.link }}">{{ book.link }}</a></div>
+                        <div>
+                            <button type="submit">お気に入り</button>
+                        </div>
+                    </div>
+                <!-- </form> -->
             {% endfor %}
         </div>
     {% endblock content %}

@@ -10,4 +10,5 @@ urlpatterns = [
     path('searchafter/', SearchAfterViewfunc, name='searchafter' ),
     path('logout/', UserLogout.as_view(), name='logout'),
     path('detail/', Detailfunc, name='detail'),
+    # path('favorite/', FavoriteView.as_view(), name='favorite'),
 ]

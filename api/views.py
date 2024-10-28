@@ -13,6 +13,9 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from bs4 import BeautifulSoup
 import re
+from django.views.generic import ListView
+from django.views import View
+from .models import Book
 
 # 最初にサイトにアクセスした時に表示する画面までのアクセス
 def SearchViewfunc(request):
@@ -338,7 +341,7 @@ class UserLogin(LoginView):
             user = form.get_user()
             print('ユーザーが登録されていることを確認できました。')
             login(self.request, user) # ログイン処理
-            return redirect('api:searchafter')
+            return redirect('api:top')
         
         except IntegrityError:
             # userのログインが失敗する場合
@@ -354,12 +357,23 @@ class UserLogout(LogoutView):
 
 def Detailfunc(request):
     # requestの中身にpkが振られているから、それに該当するものを表示させる。
-    # print(request.__dict__)
-    # print(vars(request))
+    print(request.__dict__)
+    print(vars(request))
     json_str = request.body
     json_data = json.loads(json_str)
     print(json_data)
     # if request.method == 'GET':
     return redirect('detail')
 
+
+# class FavoriteView(View):
+#     template_name = 'favorite.html'
+#     def post(self, request, *args, **kwargs):
+#         title = request.POST.get('title')
+#         author = request.POST.get('author')
+
+#         book = Book(title=title, author=author)
+#         book.save()
+
+#         return redirect('favorite')
 

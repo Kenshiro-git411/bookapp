@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +12,7 @@
             ログアウトしました
         </h2>
         <p><a href="{% url 'api:top' %}">検索画面に戻る</a></p>
-        <p><a href="{% url 'api:logout' %}">ログイン画面に戻る</a></p>
+        <p><a href="{% url 'api:login' %}">ログイン画面に戻る</a></p>
     </div>
 </body>
 </html>
