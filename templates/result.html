@@ -4,50 +4,105 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
 </head>
-<body>
+<body class="h-full">
     {% block content %}
-        <a href="{% url "api:top" %}">TOPページへ戻る</a>
-        <div>
+    <header>
+        <!-- ヘッダー全体 -->
+        <div class="flex justify-between mt-8 mb-8 mx-10 border-gray-600">
+            <!-- ヘッダーの左側 -->
+            <div class="flex space-x-5">
+                <div class="flex items-center">
+                        <span class="text-2xl font-semibold tracking-tight
+                        bg-gradient-to-r from-slate-800 via-gray-700 to-neutral-700
+                        bg-clip-text text-transparent">文献一覧作成ツール</span>
+                </div>
+                <a href="{% url "api:top" %}" class="text-xl font-bold">Search</a>
+            </div>
+            <!-- ヘッダーの右側 -->
+            {% if user.is_authenticated %}
+            <div>
+                <nav class="space-x-4">
+                    <form method="post" action="{% url "api:logout" %}">
+                        {% csrf_token %}
+                        <button type="submit" class="font-semibold">Logout</button>
+                    </form>
+
+                </nav>
+            </div>
+            {% else %}
+            <div>
+                <nav class="flex justify-between space-x-5">
+                    <form method="post" action="{% url "api:login" %}">
+                        {% csrf_token %}
+                        <button type="submit" class="font-semibold">Login</button>
+                    </form>
+                    <form method="post" action="{% url "api:signup" %}">
+                        {% csrf_token %}
+                        <button type="submit" class="font-semibold">Signup</button>
+                    </form>
+
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+    </header>
+    <main>
+        <div class="">
             {% for book in page_obj %}
                 <form method="post" action="">{% csrf_token %}
-                    <div style="margin-bottom: 24px; border-bottom: 1px solid black; padding-bottom: 24px" value="{{ book }}">
-                        <p name="title" style="font-weight: bold">タイトル: {{ book.title }}</p>
-                        <input name="title" type="hidden" value="{{ book.title }}">
-                        <div><p name="author">著者・編者: {{ book.author }}</p></div>
-                        <div><p name="category">資料種別: {{ book.category }}</p></div>
-                        <div><p>出版社: {{ book.publisher }}</p></div>
-                        {% if book.category == "記事" %}
-                        <div><p>掲載誌: {{ book.thesis }}</p></div>
-                        <div><p>掲載ページ: {{ book.page }}</p></div>
-                        {% endif %}
-                        <div><p>出版年: {{ book.publish_year }}</p></div>
-                        <div>リンク: <a href="{{ book.link }}">{{ book.link }}</a></div>
-                        <div>
-                            <button type="submit">お気に入り</button>
+                    <div class="mb-10 pb-12 border-b-2 border-dotted border-gray-600" value="{{ book }}">
+                        <div class="px-4">
+                            <p name="title" class="font-bold py-2 text-xl">タイトル: {{ book.title }}</p>
+                            <input name="title" type="hidden" value="{{ book.title }}">
+                            <div><p name="author">著者・編者: {{ book.author }}</p></div>
+                            <input name="author" type="hidden" value="{{ book.author }}">
+                            <div><p name="category">資料種別: {{ book.category }}</p></div>
+                            <input name="category" type="hidden" value="{{ book.category }}">
+                            <div><p name="publisher">出版社: {{ book.publisher }}</p></div>
+                            <input name="publisher" type="hidden" value="{{ book.publisher }}">
+                            {% if book.category == "記事" %}
+                            <div><p name="thesis">掲載誌: {{ book.thesis }}</p></div>
+                            <input name="thesis" type="hidden" value="{{ book.thesis }}">
+                            <div><p name="page">掲載ページ: {{ book.page }}</p></div>
+                            <input name="page" type="hidden" value="{{ book.page }}">
+                            {% endif %}
+                            <div><p name="publish_year">出版年: {{ book.publish_year }}</p></div>
+                            <input name="publish_year" type="hidden" value="{{ book.publish_year }}">
+                            <div>リンク: <a name="link" href="{{ book.link }}">{{ book.link }}</a></div>
+                            <input name="link" type="hidden" value="{{ book.link }}">
+                            <div class="mt-2">
+                                <button type="submit" class="h-9 text-center bg-black rounded-full shadow-md w-32 text-white hover:bg-gray-300 hover:text-black hover:duration-500">
+                                    お気に入り
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </form>
             {% endfor %}
         </div>
-      <div class="pagination">
-    <span class="step-links">
-        {% if page_obj.has_previous %}
-            <a href="?page=1">&laquo; first</a>
-            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
-        {% endif %}
+        <!-- ページネーションのページ表示 -->
+        <div class="pagination mb-8 flex justify-center">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                {% endif %}
 
-        <span class="current">
-            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-        </span>
+                <span class="current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                </span>
 
-        {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}">next</a>
-            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
-        {% endif %}
-    </span>
-</div>
-    {% endblock content %}
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+        {% endblock content %}
+    </main>
 </body>
 </html>
 
