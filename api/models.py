@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # 図書種別テーブル
 class Type(models.Model):
@@ -14,7 +15,7 @@ class Publisher(models.Model):
 
 # 雑誌テーブル
 class Magazine(models.Model):
-    magazine_title = models.CharField(max_length=20)
+    magazine_title = models.CharField(max_length=20, blank=True)
 
 # お気に入りテーブル
 class Book(models.Model):
@@ -28,3 +29,4 @@ class Book(models.Model):
     magazine_date = models.CharField(max_length=10, blank=True)
     page = models.CharField(max_length=20, blank=True)
     link = models.URLField(blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='favorites', null=True)

@@ -5,14 +5,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Logout</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class='mx-auto'>
-        <h2>
-            ログアウトしました
-        </h2>
-        <p><a href="{% url 'api:top' %}">検索画面に戻る</a></p>
-        <p><a href="{% url 'api:login' %}">ログイン画面に戻る</a></p>
+<body class="h-screen">
+    <div class="h-full flex flex-col items-center justify-center">
+        <div class="flex flex-col items-center justify-start h-2/5 w-2/5">
+            <p class="text-2xl font-bold tracking-widest">
+                ログアウトしました
+            </p>
+            <div class="flex w-full">
+                <div class="w-full flex items-center justify-center mx-8 mt-8 py-2 rounded-full font-semibold tracking-widest bg-black text-white border border-black hover:text-black hover:bg-white duration-500">
+                    <p><a href="{% url 'api:top' %}">検索画面へ</a></p>
+                </div>
+                <div class="w-full flex items-center justify-center mx-8 mt-8 py-2 rounded-full font-semibold tracking-widest bg-black text-white border border-black hover:text-black hover:bg-white duration-500">
+                    <p><a href="{% url 'api:login' %}">ログイン画面へ</a></p>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 </html>

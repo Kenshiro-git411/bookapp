@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,17 +10,31 @@
 </head>
 <body class="h-full">
     {% block content %}
-    <header>
+    <header class="mb-2 border-b border-gray-100 shadow-sm">
         <!-- ヘッダー全体 -->
-        <div class="flex justify-between mt-8 mb-8 mx-10 border-gray-600">
+        <div class="flex justify-between mt-6 pb-4 mx-10 border-gray-600">
             <!-- ヘッダーの左側 -->
             <div class="flex space-x-5">
                 <div class="flex items-center">
+                    <a href="{% url "api:top" %}">
                         <span class="text-2xl font-semibold tracking-tight
                         bg-gradient-to-r from-slate-800 via-gray-700 to-neutral-700
                         bg-clip-text text-transparent">文献一覧作成ツール</span>
+                    </a>
                 </div>
-                <a href="{% url "api:top" %}" class="text-xl font-bold">Search</a>
+                <!-- <a href="{% url "api:top" %}" class="text-xl font-bold">Search</a> -->
+                <div class="flex items-center">
+                    <form action="/search/" method="post">
+                        <div>
+                            <input type="text" class="w-full block border mr-6 px-3 py-1 rounded-full bg-gray-100 border-gray-600" id="searchword" name="searchword" value="{{ search_word }}"/>
+                            <button type="submit">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
             <!-- ヘッダーの右側 -->
             {% if user.is_authenticated %}
@@ -53,7 +68,7 @@
         <div class="">
             {% for book in page_obj %}
                 <form method="post" action="">{% csrf_token %}
-                    <div class="mb-10 pb-12 border-b-2 border-dotted border-gray-600" value="{{ book }}">
+                    <div class="mb-10 pt-3 pb-12 border-b-2 border-dotted border-gray-600" value="{{ book }}">
                         <div class="px-4">
                             <p name="title" class="font-bold py-2 text-xl">タイトル: {{ book.title }}</p>
                             <input name="title" type="hidden" value="{{ book.title }}">
@@ -73,11 +88,13 @@
                             <input name="publish_year" type="hidden" value="{{ book.publish_year }}">
                             <div>リンク: <a name="link" href="{{ book.link }}">{{ book.link }}</a></div>
                             <input name="link" type="hidden" value="{{ book.link }}">
+                            {% if user.is_authenticated %}
                             <div class="mt-2">
                                 <button type="submit" class="h-9 text-center bg-black rounded-full shadow-md w-32 text-white hover:bg-gray-300 hover:text-black hover:duration-500">
                                     お気に入り
                                 </button>
                             </div>
+                            {% endif %}
                         </div>
                     </div>
                 </form>

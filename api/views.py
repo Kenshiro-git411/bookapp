@@ -368,6 +368,12 @@ def paginated_view(request):
         print(request.POST)
         print(request.POST.get("title"))
 
+        # お気に入りボタンを押したユーザー情報を取得
+        user = request.user
+        print(f'user:{user}')
+        # ユーザーのインスタンスを取得
+        user_instance = User.objects.get(username=user)
+
         # DBへの保存処理を書く↓
         title = request.POST.get("title")
         author = request.POST.get("author")
@@ -391,12 +397,33 @@ def paginated_view(request):
         pub.save()
 
         # Magazineモデルに登録
-        
-        # Bookモデルに登録
-        publisher_instance = Publisher.objects.get(name=publisher)
-        book = Book(type=category, title=title, author=author, publisher=publisher_instance, magazine_title=thesis, date=publish_year, page=page, link=link)
-        book.save()
+        if thesis:
+            mgz = Magazine(magazine_title=thesis)
+            mgz.save()
 
+        print('OK')
+
+        # Bookモデルに登録
+        publisher = Publisher.objects.get(publisher=publisher)
+        book = Book(
+            # type=category,  # Typeのインスタンスを指定
+            title=title,
+            # author=author,  # Authorのインスタンスを指定
+            publisher=publisher,  # Publisherのインスタンスを指定
+            # magazine_title=thesis,
+            magazine_date=publish_year,
+            page=page,
+            link=link,
+            user=user
+        )
+        book.save()
+        print('Bookモデルに登録できました。')
+
+        book.type.add(tp)
+        book.author.add(atr)
+        if thesis:
+            book.magazine_title.add(mgz)
+        print(book.all())
 
     return render(request, 'result.html', {'page_obj': page_obj})
 
