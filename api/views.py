@@ -380,50 +380,88 @@ def paginated_view(request):
         category = request.POST.get("category")
         publisher = request.POST.get("publisher")
         thesis = request.POST.get("thesis")
-        page = request.POST.get("page")
+        page = request.POST.get("page", "")
         publish_year = request.POST.get("publish_year")
         link = request.POST.get("link")
 
         # Typeモデルに登録
-        tp = Type(type=category)
-        tp.save()
+        if not Type.objects.filter(type=category).exists():
+            # tp = Type(type=category)
+            # tp.save()
+            # 作成済みのtypeインスタンスが存在していなければ新規作成
+            tp = Type.objects.create(
+                type=category
+            )
+        else:
+            # すでに存在していたらgetで取り出す
+            tp = Type.objects.get(type=category)
 
         # Authorモデルに登録
-        atr = Author(author=author)
-        atr.save()
+        if not Author.objects.filter(author=author).exists():
+            # tp = Type(type=category)
+            # tp.save()
+            # 作成済みのauthorインスタンスが存在していなければ新規作成
+            atr = Author.objects.create(
+                author=author
+            )
+        else:
+            # すでに存在していたらgetで取り出す
+            atr = Author.objects.get(author=author)
+        # atr = Author(author=author)
+        # atr.save()
 
         # Publisherモデルに登録
-        pub = Publisher(publisher=publisher)
-        pub.save()
+        if not Publisher.objects.filter(publisher=publisher).exists():
+            # tp = Type(type=category)
+            # tp.save()
+            # 作成済みのpublisherインスタンスが存在していなければ新規作成
+            pub = Publisher.objects.create(
+                publisher=publisher
+            )
+        else:
+            # すでに存在していたらgetで取り出す
+            pub = Publisher.objects.get(publisher=publisher)
+
+        # pub = Publisher(publisher=publisher)
+        # pub.save()
 
         # Magazineモデルに登録
         if thesis:
-            mgz = Magazine(magazine_title=thesis)
-            mgz.save()
+            if not Magazine.objects.filter(magazine_title=thesis).exists():
+                # tp = Type(type=category)
+                # tp.save()
+                # 作成済みのmagazoneインスタンスが存在していなければ新規作成
+                mgz = Magazine.objects.create(
+                    magazine_title=thesis
+                )
+            else:
+                # すでに存在していたらgetで取り出す
+                mgz = Magazine.objects.get(magazine_title=thesis)
+            # mgz = Magazine(magazine_title=thesis)
+            # mgz.save()
 
         print('OK')
 
         # Bookモデルに登録
-        publisher = Publisher.objects.get(publisher=publisher)
-        book = Book(
-            # type=category,  # Typeのインスタンスを指定
-            title=title,
-            # author=author,  # Authorのインスタンスを指定
-            publisher=publisher,  # Publisherのインスタンスを指定
-            # magazine_title=thesis,
-            magazine_date=publish_year,
-            page=page,
-            link=link,
-            user=user
-        )
-        book.save()
-        print('Bookモデルに登録できました。')
+        # publisher = Publisher.objects.get(publisher=publisher)
+        if not Book.objects.filter(title=title, user=user).exists():
+            book = Book.objects.create(
+                title=title,
+                publisher=pub,  # Publisherのインスタンスを指定
+                # magazine_title=thesis,
+                magazine_date=publish_year,
+                page=page,
+                link=link,
+                user=user
+            )
+            print('Bookモデルに登録できました。')
 
-        book.type.add(tp)
-        book.author.add(atr)
-        if thesis:
-            book.magazine_title.add(mgz)
-        print(book.all())
+            book.type.add(tp)
+            book.author.add(atr)
+            if thesis:
+                book.magazine_title.add(mgz)
+
+        print(Book.objects.all())
 
     return render(request, 'result.html', {'page_obj': page_obj})
 
