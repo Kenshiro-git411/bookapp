@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
-from django.views.generic import TemplateView, CreateView
+from django.views.generic import TemplateView, CreateView, FormView
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
@@ -19,37 +19,42 @@ from .models import Book
 from django.core.paginator import Paginator
 from django.contrib import messages
 from .models import Type, Author, Publisher, Magazine, Book
-
+from .forms import SearchForm
 
 # 最初にサイトにアクセスした時に表示する画面までのアクセス
 def SearchViewfunc(request):
-    if request.method == 'GET':
-        print('検索画面の表示!')
-        # sessionに保存されている前回の検索ワードを取り出してくる（SearchBookクラスにてセッションは取得済み）
-        searchword = request.session.get("searchword", "")
-        book_list = request.session.get("book_list", "")
+    form = SearchForm()
 
-        # print(book_list)
-        return render(request, 'search.html', {
-            "search_word": searchword
-        })
+    print('検索画面の表示!')
+    # sessionに保存されている前回の検索ワードを取り出してくる（SearchBookクラスにてセッションは取得済み）
+    searchword = request.session.get("searchword", "")
+    book_list = request.session.get("book_list", "")
+
+    # print(book_list)
+    return render(request, 'search.html', {
+        "search_word": searchword,
+        "form": form
+    })
+
     # 他のメソッドに対する処理も追加
     # print('HttpResponse前')
     # return HttpResponse('このメソッドはサポートされていません。', status=405)
 
 
 # 検索結果画面表示のクラス
-class SearchBook(TemplateView):
+class SearchBook(TemplateView, FormView):
     template_name = 'result.html'
     context_object_name = 'result'
+    form_class = SearchForm
 
-    def post(self, request, *args, **kwargs):
+    def form_valid(self,request, *args, **kwargs):
         print("SearchGBookクラス-post関数の始まり")
         # NDL APIのURL
         apiUrl = 'https://ndlsearch.ndl.go.jp/api/opensearch'
 
         # フォームから入力された検索ワードを取得
-        searchword = request.POST.get('searchword', '')
+        searchword = request.cleaned_data.get('searchword', '')
+        print(searchword)
 
         # 検索ワードをsessionに保存する(検索画面の入力箇所へのセッション適用)
         self.request.session["searchword"] = searchword
@@ -363,6 +368,7 @@ def paginated_view(request):
     # 現在のページ番号を取得
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
+    form = SearchForm()
 
     if request.method == "POST":
         print(request.POST)
@@ -463,7 +469,7 @@ def paginated_view(request):
 
         print(Book.objects.all())
 
-    return render(request, 'result.html', {'page_obj': page_obj})
+    return render(request, 'result.html', {'page_obj': page_obj, "form": form})
 
 
 # サインアップ処理
