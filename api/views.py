@@ -19,7 +19,7 @@ from .models import Book
 from django.core.paginator import Paginator
 from django.contrib import messages
 from .models import Type, Author, Publisher, Magazine, Book
-from .forms import SearchForm
+from .forms import SearchForm, LoginForm
 
 # 最初にサイトにアクセスした時に表示する画面までのアクセス
 def SearchViewfunc(request):
@@ -506,25 +506,29 @@ class Signup(CreateView):
 
 # ログイン処理
 class UserLogin(LoginView):
-    template_name = 'login.html'
-    redirect_authenticated_user = True  # 既にログインしているユーザーはリダイレクト
+    # template_name = 'login.html'
+    # redirect_authenticated_user = True  # 既にログインしているユーザーはリダイレクト
 
-    def form_valid(self, form):
-        try:
-            # userのログインが成功する場合
-            user = form.get_user()
-            print('ユーザーが登録されていることを確認できました。')
-            login(self.request, user) # ログイン処理
-            return redirect('api:top')
+    # def form_valid(self, form):
+    #     try:
+    #         # userのログインが成功する場合
+    #         user = form.get_user()
+    #         print('ユーザーが登録されていることを確認できました。')
+    #         login(self.request, user) # ログイン処理
+    #         return redirect('api:top')
         
-        except IntegrityError:
-            # userのログインが失敗する場合
-            print('そのユーザーは登録されておりません。')
-            return self.form_invalid(form)
+    #     except IntegrityError:
+    #         # userのログインが失敗する場合
+    #         print('そのユーザーは登録されておりません。')
+    #         return self.form_invalid(form)
 
-    def form_invalid(self, form):
-        print('ユーザーが登録されていることを確認できませんでした')
-        return render(self.request, self.template_name, {'form': form})
+    # def form_invalid(self, form):
+    #     print('ユーザーが登録されていることを確認できませんでした')
+    #     return render(self.request, self.template_name, {'form': form})
+
+    # フォームによるログイン認証
+    form_class = LoginForm
+    template_name = "../templates/login.html"
     
 class UserLogout(LogoutView):
     template_name = 'logout.html' #ログアウト後に表示するテンプレート
@@ -538,4 +542,16 @@ def Detailfunc(request):
     print(json_data)
     # if request.method == 'GET':
     return redirect('detail')
+
+# Mypageボタン処理
+class BookListView(ListView, FormView):
+    print("OK")
+    template_name = 'mypage.html'
+    context_object_name = 'book_obj'
+    form_class = SearchForm
+
+    def get_queryset(self):
+        print('get_queryset関数OK')
+        return Book.objects.filter(user=self.request.user)
+
 

@@ -1,18 +1,18 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Mypage</title>
     <script src="https://cdn.tailwindcss.com"></script>
 
 </head>
 <body class="h-full">
     {% block content %}
-    <header class="mb-2 border-b border-gray-100 shadow-sm">
+    <header class="mb-3 border-b border-gray-100 shadow-sm">
         <!-- ヘッダー全体 -->
-        <div class="flex justify-between mt-6 pb-4 mx-10 border-gray-600">
+        <div class="flex justify-between py-5 mx-10 border-gray-600">
             <!-- ヘッダーの左側 -->
             <div class="flex space-x-5">
                 <div class="flex items-center">
@@ -26,14 +26,14 @@
                 <div class="flex items-center">
                     <form action="/search/" method="post">
                         <div class="relative w-96">
-{#                            <input type="text" class="w-full block border mr-6 px-3 py-1 rounded-full bg-gray-100 border-gray-600" id="searchword" name="searchword" value="{{ search_word }}"/>#}
+                            <!-- <input type="text" class="w-full block border mr-6 px-3 py-1 rounded-full bg-gray-100 border-gray-600" id="searchword" name="searchword" value="{{ search_word }}"/> -->
                             {{ form.searchword }}
                             {{ form.searchword.errors }}
                             {% csrf_token %}
-                          <button type="submit" class="absolute right-2 top-2/4 -translate-y-2/4">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                                </svg>
+                            <button type="submit" class="absolute right-2 top-2/4 -translate-y-2/4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                                    </svg>
                             </button>
                         </div>
 
@@ -42,18 +42,18 @@
             </div>
             <!-- ヘッダーの右側 -->
             {% if user.is_authenticated %}
-            <div>
-                <nav class="space-x-4">
+            <div class="flex items-center">
+                <nav class="flex justify-center space-x-4">
+                    <a href="{% url 'api:mypage' %}"><button type="submit" class="font-semibold">Mypage</button></a>
                     <form method="post" action="{% url "api:logout" %}">
                         {% csrf_token %}
                         <button type="submit" class="font-semibold">Logout</button>
                     </form>
-
                 </nav>
             </div>
             {% else %}
-            <div>
-                <nav class="flex justify-between space-x-5">
+            <div class="flex items-center">
+                <nav class="flex justify-center justify-between space-x-5">
                     <form method="post" action="{% url "api:login" %}">
                         {% csrf_token %}
                         <button type="submit" class="font-semibold">Login</button>
@@ -72,7 +72,7 @@
         <div class="">
             {% for book in page_obj %}
                 <form method="post" action="">{% csrf_token %}
-                    <div class="mb-10 pt-3 pb-12 border-b-2 border-dotted border-gray-600" value="{{ book }}">
+                    <div class=" pt-7 pb-12 border-b-2 border-dotted border-gray-600" value="{{ book }}">
                         <div class="px-4">
                             <p name="title" class="font-bold py-2 text-xl">タイトル: {{ book.title }}</p>
                             <input name="title" type="hidden" value="{{ book.title }}">
@@ -105,7 +105,7 @@
             {% endfor %}
         </div>
         <!-- ページネーションのページ表示 -->
-        <div class="pagination mb-8 flex justify-center">
+        <div class="pagination mt-4 mb-8 flex justify-center">
             <span class="step-links">
                 {% if page_obj.has_previous %}
                     <a href="?page=1">&laquo; first</a>

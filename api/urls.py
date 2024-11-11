@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import SearchBook, SearchViewfunc, Signup, UserLogin, UserLogout, Detailfunc, paginated_view
+from .views import SearchBook, SearchViewfunc, Signup, UserLogin, UserLogout, Detailfunc, paginated_view, BookListView
 app_name = "api"
 
 urlpatterns = [
@@ -10,5 +10,5 @@ urlpatterns = [
     path('login/', UserLogin.as_view(), name='login'),
     path('logout/', UserLogout.as_view(), name='logout'),
     path('detail/', Detailfunc, name='detail'),
-    # path('maypage/' )
+    path('mypage/', BookListView.as_view(), name='mypage'),
 ]

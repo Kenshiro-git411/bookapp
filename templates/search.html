@@ -10,7 +10,7 @@
 <body class="h-full">
     <header class="border-b border-gray-100 shadow-sm">
         <!-- ヘッダー全体 -->
-        <div class="flex justify-between mt-8 mx-10 pb-4">
+        <div class="flex justify-between mt-6 mx-10 pb-4">
             <!-- ヘッダーの左側 -->
             <div class="flex items-center">
                     <span class="text-2xl font-semibold tracking-tight
@@ -61,10 +61,10 @@
                             <label class="text-xl font-semibold" for="{{ form.searchword.id_for_label }}">検索ワード</label>
                         </div>
                         <div class="w-full flex justify-center text-center">
-{#                            <input type="text"#}
+<!-- {#                            <input type="text"#}
 {#                                    class="block w-full h-12 pl-5 border rounded-full bg-gray-100 border-gray-600 shadow-md"#}
 {#                                    id="searchword" placeholder="書籍名、論文名、著者名等を入力してください" name="searchword"#}
-{#                                    value="{{ search_word }}"/>#}
+{#                                    value="{{ search_word }}"/>#} -->
                               {{ form.searchword }}
                               {{ form.searchword.errors }}
                         </div>

@@ -12,9 +12,11 @@
         "encording",
         "fullwidth",
         "halfwidth",
+        "mypage",
         "searchafter",
         "searchbook",
         "searchword",
+        "sesion",
         "simplejwt",
         "urlquote",
         "xmltodict"
