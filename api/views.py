@@ -511,7 +511,7 @@ class Signup(CreateView):
         message = render_to_string('user_create/message.txt', context)
 
         user.email_user(subject, message)
-        return redirect('user_create_done')
+        return redirect('signup_done')
 
         # try:
         #     # 新しいユーザーを作成
@@ -535,7 +535,8 @@ class Signup(CreateView):
     
 # サインアップ処理（ユーザー仮登録後処理）
 class UserCreateDone(TemplateView):
-    template_name = 'user_create_complete'
+    # ユーザー仮登録完了
+    template_name = 'user_create_done.html'
 
 class UserCreateComplete(TemplateView):
     # メールで受け取ったURLにアクセス後のユーザー本登録
