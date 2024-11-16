@@ -19,7 +19,13 @@ from .models import Book
 from django.core.paginator import Paginator
 from django.contrib import messages
 from .models import Type, Author, Publisher, Magazine, Book
-from .forms import SearchForm, LoginForm
+from .forms import SearchForm, LoginForm, UserCreateForm
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.signing import loads, dumps, SignatureExpired, BadSignature
+from django.template.loader import render_to_string
+from django.contrib.auth import get_user_model
+from django.conf import settings
+from django.http import Http404, HttpResponseBadRequest
 
 # 最初にサイトにアクセスした時に表示する画面までのアクセス
 def SearchViewfunc(request):
@@ -455,7 +461,7 @@ def paginated_view(request):
                 title=title,
                 publisher=pub,  # Publisherのインスタンスを指定
                 # magazine_title=thesis,
-                magazine_date=publish_year,
+                date=publish_year,
                 page=page,
                 link=link,
                 user=user
@@ -471,37 +477,98 @@ def paginated_view(request):
 
     return render(request, 'result.html', {'page_obj': page_obj, "form": form})
 
+# プロジェクトで使用されているUserモデルの取得（Userモデルを使用するときはget_user_modelメソッドを使用する）
+User = get_user_model()
 
-# サインアップ処理
+# サインアップ処理（ユーザー仮登録処理）
 class Signup(CreateView):
     template_name = 'signup.html'
-    model = User
-    fields = ['username', 'password'] # 必要なフィールドを指定
+    # model = User
+    # fields = ['username', 'password'] # 必要なフィールドを指定
+    form_class = UserCreateForm
     
     def form_valid(self, form):
         # フォームが有効な場合の処理
-        username = form.cleaned_data['username']
-        password = form.cleaned_data['password']
+        # username = form.cleaned_data['username']
+        # password = form.cleaned_data['password']
 
-        try:
-            # 新しいユーザーを作成
-            user = User.objects.create_user(username=username, password=password)
-            print('登録の重複はありません。登録処理を実行済みです。')
+        # 仮登録と本登録用メールの発行
+        user = form.save(commit=False)
+        user.is_active = False
+        user.save()
 
-            # 自動的にログイン
-            login(self.request, user)
+        # アクティベーションURLの送付
+        current_site = get_current_site(self.request)
+        domain = current_site.domain
+        context = {
+            'protocol': self.request.scheme,
+            'domain': domain,
+            'token': dumps(user.pk),
+            'user': user,
+        }
 
-            # リダイレクト先を指定
-            return redirect('api:searchafter')
+        subject = render_to_string('user_create/subject.txt', context)
+        message = render_to_string('user_create/message.txt', context)
 
-        except IntegrityError:
-            print('登録の重複があります。登録できませんでした。')
-            form.add_error('username', 'このユーザーはすでに登録されています')
-            return self.form_invalid(form)
+        user.email_user(subject, message)
+        return redirect('user_create_done')
+
+        # try:
+        #     # 新しいユーザーを作成
+        #     user = User.objects.create_user(username=username, password=password)
+        #     print('登録の重複はありません。登録処理を実行済みです。')
+
+        #     # 自動的にログイン
+        #     login(self.request, user)
+
+        #     # リダイレクト先を指定
+        #     return redirect('api:searchafter')
+
+        # except IntegrityError:
+        #     print('登録の重複があります。登録できませんでした。')
+        #     form.add_error('username', 'このユーザーはすでに登録されています')
+        #     return self.form_invalid(form)
 
     def form_invalid(self, form):
         # フォームが無効な場合の処理
         return render(self.request, self.template_name, {'form': form})
+    
+# サインアップ処理（ユーザー仮登録後処理）
+class UserCreateDone(TemplateView):
+    template_name = 'user_create_complete'
+
+class UserCreateComplete(TemplateView):
+    # メールで受け取ったURLにアクセス後のユーザー本登録
+    template_name = 'user_create_complete.html'
+    timeout_seconds = getattr(settings, 'ACTIVATION_TIMEOUT_SECONDS', 60*60*24) #第三引数でアクティベーションURLの期限を設定
+
+    def get(self, request, **kwargs):
+        # tokenが正しければ本登録する
+        token = kwargs.get('token')
+        try:
+            user_pk = loads(token, max_age=self.timeout_seconds)
+        # tokenが間違っていた場合の処理(アクティベーションURLが期限切れの場合を指す)
+        except SignatureExpired:
+            return HttpResponseBadRequest()
+        # tokenがおかしい場合の処理(トークンにテキトーなものが格納されている場合を指す)
+        except BadSignature:
+            return HttpResponseBadRequest()
+        
+        # tokenは問題なし
+        else:
+            try:
+                user = User.objects.get(pk=user_pk)
+            except User.DoesNotExist:
+                return HttpResponseBadRequest()
+            else:
+                # userの状態(is_active)がTrueでない場合
+                if not user.is_active:
+                    # 問題なければ本登録とする
+                    user.is_active = True
+                    user.save()
+                    return super().get(request, **kwargs)
+        
+        return HttpResponseBadRequest()
 
 
 # ログイン処理
@@ -549,6 +616,7 @@ class BookListView(ListView, FormView):
     template_name = 'mypage.html'
     context_object_name = 'book_obj'
     form_class = SearchForm
+    paginate_by = 3
 
     def get_queryset(self):
         print('get_queryset関数OK')

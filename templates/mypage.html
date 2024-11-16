@@ -58,18 +58,23 @@
                         <div class="px-4">
                             <p name="title" class="font-bold py-2 text-xl">タイトル: {{ book.title }}</p>
                             <input name="title" type="hidden" value="{{ book.title }}">
-                            {% for author_name %}
-                            <div><p name="author">著者・編者: {{ book.author }}</p></div>
-                            <input name="author" type="hidden" value="{{ book.author }}">
-                            <div><p name="type">資料種別: {{ book.type }}</p></div>
-                            <input name="type" type="hidden" value="{{ book.type }}">
-                            <div><p name="publisher">出版社: {{ book.publisher }}</p></div>
+                            {% for author in book.author.all %}
+                                <div><p name="author">著者・編者: {{ author.author }}</p></div>
+                            <!-- <input name="author" type="hidden" value="{{ book.author }}"> -->
+                            {% endfor %}
+                            {% for type in book.type.all %}
+                                <div><p name="type">資料種別: {{ type.type }}</p></div>
+                            {% endfor %}
+                            <!-- <input name="type" type="hidden" value="{{ book.type }}"> -->
+                            <div><p name="publisher">出版社: {{ book.publisher.publisher }}</p></div>
                             <input name="publisher" type="hidden" value="{{ book.publisher }}">
                             {% if book.type == "記事" %}
-                            <div><p name="magazine_title">掲載誌: {{ book.magazine_title }}</p></div>
-                            <input name="magazine_title" type="hidden" value="{{ book.magazine_title }}">
-                            <div><p name="page">掲載ページ: {{ book.page }}</p></div>
-                            <input name="page" type="hidden" value="{{ book.page }}">
+                                {% for magazine_title in book.magazine_title.all %}
+                                    <div><p name="magazine_title">掲載誌: {{ magazine_title.magazine_title }}</p></div>
+                                {% endfor %}
+                                <!-- <input name="magazine_title" type="hidden" value="{{ book.magazine_title }}"> -->
+                                <div><p name="page">掲載ページ: {{ book.page }}</p></div>
+                                <input name="page" type="hidden" value="{{ book.page }}">
                             {% endif %}
                             <div><p name="date">出版年: {{ book.date }}</p></div>
                             <input name="date" type="hidden" value="{{ book.date }}">

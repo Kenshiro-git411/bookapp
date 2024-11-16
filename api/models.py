@@ -19,14 +19,14 @@ class Magazine(models.Model):
 
 # お気に入りテーブル
 class Book(models.Model):
-    type = models.ManyToManyField(Type, blank=True)
-    title = models.CharField(max_length=255)
-    author = models.ManyToManyField(Author, blank=True)
-    publisher = models.ForeignKey(Publisher, on_delete=models.PROTECT)
-    date = models.CharField(max_length=10)
-    magazine_title = models.ManyToManyField(Magazine, blank=True)
-    magazine_number = models.CharField(max_length=20, blank=True)
-    magazine_date = models.CharField(max_length=10, blank=True)
-    page = models.CharField(max_length=20, blank=True)
-    link = models.URLField(blank=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='favorites', null=True)
+    type = models.ManyToManyField(Type, blank=True) #図書種別
+    title = models.CharField(max_length=255) #資料タイトル
+    author = models.ManyToManyField(Author, blank=True) #著者
+    publisher = models.ForeignKey(Publisher, on_delete=models.PROTECT) #出版社
+    date = models.CharField(max_length=10) #出版年
+    magazine_title = models.ManyToManyField(Magazine, blank=True) #掲載誌タイトル
+    magazine_number = models.CharField(max_length=20, blank=True) #掲載誌関数
+    magazine_date = models.CharField(max_length=10, blank=True) #掲載誌出版年
+    page = models.CharField(max_length=20, blank=True) #論文掲載ページ数
+    link = models.URLField(blank=True) #図書資料へのアクセスURL
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='favorites', null=True) #username

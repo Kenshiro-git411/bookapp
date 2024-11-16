@@ -152,3 +152,11 @@ MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = 'media/'
 
 # LOGOUT_REDIRECT_URL = 'api:top'
+
+# ログイン後のリダイレクト先
+LOGIN_REDIRECT_URL = 'api:top'
+
+CSRF_TRUSTED_ORIGINS = [ "http://127.0.0.1:8000" ]
+
+# メール送信のバックエンドを指定
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
