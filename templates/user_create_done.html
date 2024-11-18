@@ -1,6 +1,35 @@
-{% block content %}
-<p>
-    会員登録確認メールを送信しました。まだ、会員登録は完了していません。<br>
-    確認メールを送信しましたので、確認メールに記載されているリンクから本登録を行ってください。
-</p>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ユーザー仮登録</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+<body class="h-screen flex flex-col">
+    <header class="border-b border-gray-100 shadow-md">
+        <!-- ヘッダー全体 -->
+        <div class="flex justify-between py-4 px-10 shadow-md bg-white">
+            <!-- ヘッダーの左側 -->
+            <div class="flex items-center">
+                <a href="{% url "api:top" %}">
+                    <span class="text-2xl font-semibold tracking-tight
+                    bg-gradient-to-r from-slate-800 via-gray-700 to-neutral-700
+                    bg-clip-text text-transparent">文献一覧作成ツール</span>
+                </a>
+            </div>
+        </div>
+    </header>
+    <main class="flex-grow flex items-center justify-center">
+        <div class="flex justify-center justify-start h-2/5 w-3/5">
+            <div class="flex flex-col items-center w-full">
+                <p class="text-2xl font-bold tracking-widest">
+                    会員登録確認メールを送信しました。まだ、会員登録は完了していません。<br>
+                    確認メールを送信しましたので、確認メールに記載されているリンクから本登録を行ってください。
+                </p>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

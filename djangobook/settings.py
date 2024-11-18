@@ -156,7 +156,14 @@ MEDIA_URL = 'media/'
 # ログイン後のリダイレクト先
 LOGIN_REDIRECT_URL = 'api:top'
 
+# CSRFトークンをチェックする際、指定されたものは信頼あるリクエストとして扱う
 CSRF_TRUSTED_ORIGINS = [ "http://127.0.0.1:8000" ]
 
 # メール送信のバックエンドを指定
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+# メールをコンソールに表示する
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# カスタムユーザーモデルをデフォルトに設定
+AUTH_USER_MODEL = 'api.User'

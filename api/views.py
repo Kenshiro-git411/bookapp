@@ -1,7 +1,9 @@
+import csv
+import re
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
-from django.views.generic import TemplateView, CreateView, FormView
-from django.contrib.auth.views import LoginView, LogoutView
+from django.views.generic import TemplateView, CreateView, FormView, DetailView
+from django.contrib.auth.views import LoginView, LogoutView, PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse
@@ -12,7 +14,6 @@ import requests
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from bs4 import BeautifulSoup
-import re
 from django.views.generic import ListView
 from django.views import View
 from .models import Book
@@ -26,6 +27,8 @@ from django.template.loader import render_to_string
 from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.http import Http404, HttpResponseBadRequest
+from .forms import (LoginForm, UserCreateForm, MyPasswordChangeForm, MyPasswordResetForm, MySetPasswordForm)
+
 
 # 最初にサイトにアクセスした時に表示する画面までのアクセス
 def SearchViewfunc(request):
@@ -442,7 +445,7 @@ def paginated_view(request):
             if not Magazine.objects.filter(magazine_title=thesis).exists():
                 # tp = Type(type=category)
                 # tp.save()
-                # 作成済みのmagazoneインスタンスが存在していなければ新規作成
+                # 作成済みのmagazineインスタンスが存在していなければ新規作成
                 mgz = Magazine.objects.create(
                     magazine_title=thesis
                 )
@@ -486,7 +489,7 @@ class Signup(CreateView):
     # model = User
     # fields = ['username', 'password'] # 必要なフィールドを指定
     form_class = UserCreateForm
-    
+
     def form_valid(self, form):
         # フォームが有効な場合の処理
         # username = form.cleaned_data['username']
@@ -511,7 +514,7 @@ class Signup(CreateView):
         message = render_to_string('user_create/message.txt', context)
 
         user.email_user(subject, message)
-        return redirect('signup_done')
+        return redirect('api:signup_done')
 
         # try:
         #     # 新しいユーザーを作成
@@ -532,7 +535,7 @@ class Signup(CreateView):
     def form_invalid(self, form):
         # フォームが無効な場合の処理
         return render(self.request, self.template_name, {'form': form})
-    
+
 # サインアップ処理（ユーザー仮登録後処理）
 class UserCreateDone(TemplateView):
     # ユーザー仮登録完了
@@ -554,7 +557,7 @@ class UserCreateComplete(TemplateView):
         # tokenがおかしい場合の処理(トークンにテキトーなものが格納されている場合を指す)
         except BadSignature:
             return HttpResponseBadRequest()
-        
+
         # tokenは問題なし
         else:
             try:
@@ -568,7 +571,7 @@ class UserCreateComplete(TemplateView):
                     user.is_active = True
                     user.save()
                     return super().get(request, **kwargs)
-        
+
         return HttpResponseBadRequest()
 
 
@@ -622,5 +625,58 @@ class BookListView(ListView, FormView):
     def get_queryset(self):
         print('get_queryset関数OK')
         return Book.objects.filter(user=self.request.user)
+    
+    # マイページ登録資料をCSV出力させる
+    def post_export(request):
+        if request.method == "POST":
 
+            material = Book.objects.filter(user=request.user)
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="export.csv'
+            writer = csv.writer(response)
+
+            for obj in material.objects.all():
+                writer.writerow([obj.title, obj.author])
+
+# パスワード変更用URLを送付する処理
+class PasswordReset(PasswordResetView):
+    # パスワード変更用URLの送付ページ
+    subject_template_name = 'password_reset/subject.txt' #このテキストが読み込まれない
+    email_template_name = 'password_reset/message.txt' #このテキストが読み込まれない
+    template_name = 'password_reset_form.html'
+    form_class = MyPasswordResetForm
+    success_url = reverse_lazy('api:password_reset_done')
+
+
+    # def get_subject_template_name(self):
+    #     return 'password_reset/subject.txt'
+    # def get_email_template_name(self):
+    #     return 'password_reset/message.txt'
+
+
+# パスワード変更用URLが送られたことを示す処理
+class PasswordResetDone(PasswordResetDoneView):
+    # パスワード変更用URLを送りましたページ
+    template_name = 'password_reset_done.html'
+
+# 新パスワードを入力する処理
+class PasswordResetConfirm(PasswordResetConfirmView):
+    # 新パスワード入力ページ
+    form_class = MySetPasswordForm
+    success_url = reverse_lazy('api:password_reset_complete')
+    template_name = 'password_reset_confirm.html'
+
+# 新パスワードが設定完了したことを表示する処理
+class PasswordResetComplete(PasswordResetCompleteView):
+    # 新パスワード設定しましたページ
+    template_name = 'password_reset_complete.html'
+
+# ユーザー情報の詳細を表示させる
+class UserSetting(DetailView):
+    model = User
+    template_name = 'setting.html'
+
+    # def get_object(self, request, pk):
+    #     object = User.objects.get(pk=pk)
+    #     return render(request, self.template_name, {'object':object})
 

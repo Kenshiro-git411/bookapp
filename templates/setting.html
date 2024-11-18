@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>アカウント設定</title>
+
+</head>
+<body>
+    <header class="mb-3 border-b border-gray-100 shadow-md">
+        <!-- ヘッダー全体 -->
+        <div class="flex justify-between py-5 mx-10 border-gray-600">
+            <!-- ヘッダーの左側 -->
+            <div class="flex space-x-5">
+                <div class="flex items-center">
+                    <a href="{% url "api:top" %}">
+                        <span class="text-2xl font-semibold tracking-tight
+                        bg-gradient-to-r from-slate-800 via-gray-700 to-neutral-700
+                        bg-clip-text text-transparent">文献一覧作成ツール</span>
+                    </a>
+                </div>
+            </div>
+            <!-- ヘッダーの右側 -->
+            <div class="flex items-center">
+                <nav class="space-x-4">
+                    <form method="post" action="{% url "api:logout" %}">
+                        {% csrf_token %}
+                        <button type="submit" class="font-semibold">Logout</button>
+                    </form>
+                </nav>
+            </div>
+        </div>
+    </header>
+    <main>
+        {{ user.username }}
+    </main>
+</body>
+</html>

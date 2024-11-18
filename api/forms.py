@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import (AuthenticationForm, UserCreationForm)
+from django.contrib.auth.forms import (AuthenticationForm, UserCreationForm, PasswordChangeForm, PasswordResetForm, SetPasswordForm)
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -15,15 +15,21 @@ class SearchForm(forms.Form):
 
 # Loginフォーム
 class LoginForm(AuthenticationForm):
-    username = forms.CharField(label="ユーザー名")
-    password = forms.CharField(label="パスワード")
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["username"].widget.attrs["class"] = "block w-full border-0 px-2 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6"
-        self.fields["username"].widget.attrs["placeholder"] = "ユーザー名を入力してください"
-        self.fields["password"].widget.attrs["class"] = "block w-full border-0 px-2 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6"
-        self.fields["password"].widget.attrs["placeholder"] = "パスワードを入力してください"
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control block w-full border-0 px-2 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6'
+            field.widget.attrs['placeholder'] = field.label
+    
+    # username = forms.CharField(label="ユーザー名")
+    # password = forms.CharField(label="パスワード")
+
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     self.fields["username"].widget.attrs["class"] = "block w-full border-0 px-2 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6"
+    #     self.fields["username"].widget.attrs["placeholder"] = "ユーザー名を入力してください"
+    #     self.fields["password"].widget.attrs["class"] = "block w-full border-0 px-2 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6"
+    #     self.fields["password"].widget.attrs["placeholder"] = "パスワードを入力してください"
 
 # Signupフォーム
 class UserCreateForm(UserCreationForm):
@@ -41,3 +47,26 @@ class UserCreateForm(UserCreationForm):
         email = self.cleaned_data['email']
         User.objects.filter(email=email, is_active=False).delete()
         return email
+    
+# パスワードリセットフォーム
+class MyPasswordChangeForm(PasswordChangeForm):
+    # パスワード変更フォーム
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'w-full form-control'
+
+# パスワード忘れた時用フォーム
+class MyPasswordResetForm(PasswordResetForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'w-full pl-1 py-1 form-control'
+
+
+# パスワード再設定用フォーム（パスワード忘れて再設定）
+class MySetPasswordForm(SetPasswordForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'w-full pl-1 py-1 form-control'
