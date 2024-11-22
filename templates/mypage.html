@@ -51,8 +51,11 @@
         </div>
     </header>
     <main>
-        <form method="post" action="{% url "api:logout" %}">
-            {% csrf_token %}
+        <form method="post" action="{% url "api:export" %}">{% csrf_token %}
+            <select name="output">
+                <option value="csv">CSV</option>
+                <option value="text">TEXT</option>
+            </select>
             <button type="submit" class="font-semibold">出力</button>
         </form>
         <div class="">

@@ -28,6 +28,7 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.http import Http404, HttpResponseBadRequest
 from .forms import (LoginForm, UserCreateForm, MyPasswordChangeForm, MyPasswordResetForm, MySetPasswordForm)
+from datetime import datetime
 
 
 # 最初にサイトにアクセスした時に表示する画面までのアクセス
@@ -625,18 +626,6 @@ class BookListView(ListView, FormView):
     def get_queryset(self):
         print('get_queryset関数OK')
         return Book.objects.filter(user=self.request.user)
-    
-    # マイページ登録資料をCSV出力させる
-    def post_export(request):
-        if request.method == "POST":
-
-            material = Book.objects.filter(user=request.user)
-            response = HttpResponse(content_type='text/csv')
-            response['Content-Disposition'] = 'attachment; filename="export.csv'
-            writer = csv.writer(response)
-
-            for obj in material.objects.all():
-                writer.writerow([obj.title, obj.author])
 
 # パスワード変更用URLを送付する処理
 class PasswordReset(PasswordResetView):
@@ -680,3 +669,31 @@ class UserSetting(DetailView):
     #     object = User.objects.get(pk=pk)
     #     return render(request, self.template_name, {'object':object})
 
+# マイページ登録資料をCSVまたはtextファイルを出力させる
+def export_file(request):
+    if request.method == "POST":
+        selected_option = request.POST.get('output')
+        now = datetime.now()
+        material = Book.objects.filter(user=request.user)
+
+        # CSVが選択された場合
+        if selected_option == 'csv':
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = f'attachment; filename="export_{now.strftime("%Y%m%d_%H%M%S")}.csv"'
+            writer = csv.writer(response)
+
+            response.write("Title", "Author") #ヘッダー行
+            for obj in material:
+                writer.writerow([obj.title, obj.author])
+
+        # TEXTが選択された場合
+        elif selected_option == 'text':
+            response = HttpResponse(content_type='text/plain')
+            response['Content-Disposition'] = f'attachment; filename="export_{now.strftime("%Y%m%d_%H%M%S")}.txt"'
+
+            # データをテキスト形式で書き出し
+            response.write("Title\tAuthor\n")  # ヘッダー行（タブ区切り）
+            for obj in material:
+                response.write(f"{obj.title}\t{obj.author}\n")  # データ行（タブ区切り）
+
+        return response

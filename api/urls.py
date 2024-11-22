@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import SearchBook, SearchViewfunc, Signup, UserLogin, UserLogout, Detailfunc, paginated_view, BookListView, UserCreateDone, UserCreateComplete, PasswordReset, PasswordResetDone, PasswordResetConfirm, PasswordResetComplete, UserSetting
+from .views import SearchBook, SearchViewfunc, Signup, UserLogin, UserLogout, Detailfunc, paginated_view, BookListView, UserCreateDone, UserCreateComplete, PasswordReset, PasswordResetDone, PasswordResetConfirm, PasswordResetComplete, UserSetting, export_file
 app_name = "api"
 
 urlpatterns = [
@@ -18,4 +18,5 @@ urlpatterns = [
     path('password_reset/confirm/<uidb64>/<token>/', PasswordResetConfirm.as_view(), name='password_reset_confirm'),
     path('password_reset/complete/', PasswordResetComplete.as_view(), name='password_reset_complete'),
     path('setting/<int:pk>', UserSetting.as_view(), name='setting'), #マイページの各種設定変更画面へ
+    path('mypage/output/', export_file, name='output')
 ]
