@@ -109,5 +109,5 @@ class Book(models.Model):
     magazine_date = models.CharField(max_length=10, blank=True) #掲載誌出版年
     page = models.CharField(max_length=20, blank=True) #論文掲載ページ数
     link = models.URLField(blank=True) #図書資料へのアクセスURL
-    # email = models.ForeignKey(User, on_delete=models.CASCADE, related_name='favorites', null=True) #username
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='favorites', null=True) #email
 
