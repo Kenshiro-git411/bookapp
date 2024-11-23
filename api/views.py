@@ -661,7 +661,7 @@ class PasswordResetComplete(PasswordResetCompleteView):
     template_name = 'password_reset_complete.html'
 
 # ユーザー情報の詳細を表示させる
-class UserSetting(DetailView):
+class UserSetting(TemplateView):
     model = User
     template_name = 'setting.html'
 
@@ -682,7 +682,7 @@ def export_file(request):
             response['Content-Disposition'] = f'attachment; filename="export_{now.strftime("%Y%m%d_%H%M%S")}.csv"'
             writer = csv.writer(response)
 
-            response.write("Title", "Author") #ヘッダー行
+            writer.writerow(["Title", "Author"]) #ヘッダー行
             for obj in material:
                 writer.writerow([obj.title, obj.author])
 
@@ -692,8 +692,12 @@ def export_file(request):
             response['Content-Disposition'] = f'attachment; filename="export_{now.strftime("%Y%m%d_%H%M%S")}.txt"'
 
             # データをテキスト形式で書き出し
-            response.write("Title\tAuthor\n")  # ヘッダー行（タブ区切り）
+            response.write("Title、Author\n")  # ヘッダー行（タブ区切り）
             for obj in material:
-                response.write(f"{obj.title}\t{obj.author}\n")  # データ行（タブ区切り）
+                print(obj)
+                # print(obj.author.author)
+                for author in obj.author.all():
+                    print(author.author)
+                    # response.write(f"{obj.author}\n")  # データ行（タブ区切り） {obj.title}
 
         return response

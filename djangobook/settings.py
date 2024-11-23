@@ -11,15 +11,33 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-SECRET_KEY = config('SECRET_KEY')
+# 下のローカル用設定箇所のコードに移動
+# SECRET_KEY = config('SECRET_KEY')
 
+# DEBUGについては.envファイルに書いてあるため、configファイル(.envファイル)を指定するように書いておく。
 DEBUG = config('DEBUG')
 
-ALLOWED_HOSTS = []
+try:
+    from .local_settings import *
+except ImportError:
+    pass
 
+# ローカル用設定
+if DEBUG:
+    ALLOWED_HOSTS = ['*'] #開発環境ではすべてのホストからのアクセスを許可する。
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # メールの内容をコンソールに表示する。
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media') #djangoappプロジェクトフォルダ配下のmediaフォルダを指定。
+else:
+    import environ
+    env = environ.Env()
+    env.read_env(os.path.join(BASE_DIR, '.env')) #.envファイルの読み込み
+
+    SECRET_KEY = config('SECRET_KEY') #.envファイルからsecretkeyを取得。
+    ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
+
+    # 以下に本番環境のSTATIC_ROOTとMEDIA_ROOTを書く。
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -147,7 +165,8 @@ STATICFILES_DIRS = (
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MEDIA_ROOT = BASE_DIR / 'media'
+# デプロイのため削除
+# MEDIA_ROOT = BASE_DIR / 'media'
 
 MEDIA_URL = 'media/'
 
@@ -162,8 +181,6 @@ CSRF_TRUSTED_ORIGINS = [ "http://127.0.0.1:8000" ]
 # メール送信のバックエンドを指定
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-# メールをコンソールに表示する
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # カスタムユーザーモデルをデフォルトに設定
 AUTH_USER_MODEL = 'api.User'

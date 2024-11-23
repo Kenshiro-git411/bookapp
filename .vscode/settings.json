@@ -7,6 +7,7 @@
         "corsheaders",
         "dburl",
         "dcterms",
+        "djangoapp",
         "djangobook",
         "djoser",
         "encording",

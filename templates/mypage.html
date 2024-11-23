@@ -51,17 +51,21 @@
         </div>
     </header>
     <main>
-        <form method="post" action="{% url "api:export" %}">{% csrf_token %}
-            <select name="output">
-                <option value="csv">CSV</option>
-                <option value="text">TEXT</option>
-            </select>
-            <button type="submit" class="font-semibold">出力</button>
-        </form>
+        <div class="flex justify-center">
+            <div class="flex items-center justify-end w-4/5">
+                <form method="post" action="{% url "api:export" %}">{% csrf_token %}
+                    <select name="output" class="border border-gray-600 rounded-md">
+                        <option value="csv">CSV</option>
+                        <option value="text">TEXT</option>
+                    </select>
+                    <button type="submit" class="px-3 text-center bg-black rounded-md shadow-md text-white hover:bg-gray-300 hover:text-black hover:duration-500" >出力</button>
+                </form>
+            </div>
+        </div>
         <div class="">
             {% for book in book_obj %}
                 <form method="post" action="">{% csrf_token %}
-                    <div class=" pt-7 pb-12 border-b-2 border-dotted border-gray-600" value="{{ book }}">
+                    <div class=" pt-4 pb-6 border-b-2 border-dotted border-gray-600" value="{{ book }}">
                         <div class="px-4">
                             <p name="title" class="font-bold py-2 text-xl">タイトル: {{ book.title }}</p>
                             <input name="title" type="hidden" value="{{ book.title }}">

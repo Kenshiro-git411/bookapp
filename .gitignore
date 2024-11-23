@@ -2,3 +2,6 @@ db.sqlite3
 api/__pycache__
 api/migrations/__pycache__
 djangobook/__pycache__
+media
+local_settings.py
+.venv
