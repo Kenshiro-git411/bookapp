@@ -1,6 +1,6 @@
 import csv
 import re
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.views.generic import TemplateView, CreateView, FormView, DetailView
 from django.contrib.auth.views import LoginView, LogoutView, PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
@@ -370,7 +370,7 @@ class SearchBook(TemplateView, FormView):
 # ページネーション処理
 def paginated_view(request):
     # セッションからデータを取得
-    api_data = request.session.get('book_list')
+    api_data = request.session.get('book_list')[:1000]
 
     # Paginatorの設定 (1ページに表示するアイテム数を指定)
     paginator = Paginator(api_data, 3)  # 1ページに10件表示
@@ -682,22 +682,45 @@ def export_file(request):
             response['Content-Disposition'] = f'attachment; filename="export_{now.strftime("%Y%m%d_%H%M%S")}.csv"'
             writer = csv.writer(response)
 
-            writer.writerow(["Title", "Author"]) #ヘッダー行
+            writer.writerow(["Author", "Title", "Publisher", "Date", "Magazine", "Page", "Author「Title」(『Magazine』Publisher、Date、Page)"]) #ヘッダー行
             for obj in material:
-                writer.writerow([obj.title, obj.author])
+                for type in obj.type.all():
+                    type = type.type
+                    if type == "図書":
+                        for author in obj.author.all():
+                            author_name = author.author
+                        writer.writerow([author_name, obj.title, obj.publisher.publisher, obj.date,"" ,"" , f'{author_name}『{obj.title}』{obj.publisher.publisher}、{obj.date}'])
+                    elif type == "記事":
+                        for author in obj.author.all():
+                            author_name = author.author
+                        for magazine_title in obj.magazine_title.all():
+                            magazine_title_name = magazine_title.magazine_title
+                        writer.writerow([author_name, obj.title, obj.publisher.publisher, obj.date, magazine_title_name, obj.page, f'{author_name}「{obj.title}」(『{magazine_title_name}』{obj.publisher.publisher}、{obj.date}、{obj.page})'])
 
-        # TEXTが選択された場合
+        # TEXTが選択された場合（データをテキスト形式で書き出し）
         elif selected_option == 'text':
             response = HttpResponse(content_type='text/plain')
-            response['Content-Disposition'] = f'attachment; filename="export_{now.strftime("%Y%m%d_%H%M%S")}.txt"'
-
-            # データをテキスト形式で書き出し
-            response.write("Title、Author\n")  # ヘッダー行（タブ区切り）
+            response['Content-Disposition'] = f'attachment; filename="export_{now.strftime("%Y%m%d_%H%M%S")}.txt"'# ファイル名に日時を記入
+            response.write("図書:Author『Title』Publisher、Date 論文:Author「Title」(『Magazine』Publisher、Date、Page)\n")  # ヘッダー行
             for obj in material:
                 print(obj)
-                # print(obj.author.author)
-                for author in obj.author.all():
-                    print(author.author)
-                    # response.write(f"{obj.author}\n")  # データ行（タブ区切り） {obj.title}
+                for type in obj.type.all():
+                    type = type.type
+                    if type == "図書":
+                        for author in obj.author.all():
+                            print(author.author)
+                            author_name = author.author
+                        response.write(f"{author_name}『{obj.title}』{obj.publisher.publisher}、{obj.date}\n")
+                    elif type == "記事":
+                        for author in obj.author.all():
+                            author_name = author.author
+                        for magazine_title in obj.magazine_title.all():
+                            magazine_title_name = magazine_title.magazine_title
+                        response.write(f"{author_name}「{obj.title}」(『{magazine_title_name}』{obj.publisher.publisher}、{obj.date}、{obj.page}）\n")
 
         return response
+
+def bookdetail(request, pk):
+    object = get_object_or_404(Book, pk=pk)
+    return render(request, "detail_bookpage.html", {'object':object})
+

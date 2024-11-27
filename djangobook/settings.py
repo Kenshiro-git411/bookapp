@@ -15,27 +15,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECRET_KEY = config('SECRET_KEY')
 
 # DEBUGについては.envファイルに書いてあるため、configファイル(.envファイル)を指定するように書いておく。
-DEBUG = config('DEBUG')
+DEBUG = config('DEBUG') #デプロイ設定
 
-try:
-    from .local_settings import *
-except ImportError:
-    pass
 
-# ローカル用設定
-if DEBUG:
-    ALLOWED_HOSTS = ['*'] #開発環境ではすべてのホストからのアクセスを許可する。
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # メールの内容をコンソールに表示する。
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'media') #djangoappプロジェクトフォルダ配下のmediaフォルダを指定。
-else:
-    import environ
-    env = environ.Env()
-    env.read_env(os.path.join(BASE_DIR, '.env')) #.envファイルの読み込み
-
-    SECRET_KEY = config('SECRET_KEY') #.envファイルからsecretkeyを取得。
-    ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
-
-    # 以下に本番環境のSTATIC_ROOTとMEDIA_ROOTを書く。
 
 # Application definition
 INSTALLED_APPS = [
@@ -63,9 +45,9 @@ MIDDLEWARE = [
 ]
 
 # next.jsのローカルサーバからアクセスを可能にするurl
-CORS_ORIGIN_WHITELIST = [
-    "http://localhost:3000",
-]
+# CORS_ORIGIN_WHITELIST = [
+#     "http://localhost:3000",
+# ]
 
 # JSON Web Token（JWT）認証を実装するためのライブラリ
 # セキュアなユーザー認証を行う
@@ -159,6 +141,7 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = (
     os.path.normpath(os.path.join(BASE_DIR, "assets")),
 )
+MEDIA_URL = 'media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -168,8 +151,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # デプロイのため削除
 # MEDIA_ROOT = BASE_DIR / 'media'
 
-MEDIA_URL = 'media/'
-
+# ログアウト後のリダイレクト先
 # LOGOUT_REDIRECT_URL = 'api:top'
 
 # ログイン後のリダイレクト先
@@ -179,8 +161,31 @@ LOGIN_REDIRECT_URL = 'api:top'
 CSRF_TRUSTED_ORIGINS = [ "http://127.0.0.1:8000" ]
 
 # メール送信のバックエンドを指定
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 # カスタムユーザーモデルをデフォルトに設定
 AUTH_USER_MODEL = 'api.User'
+
+try:
+    from .local_settings import *
+except ImportError:
+    pass
+
+# ローカル用設定
+if DEBUG:
+    ALLOWED_HOSTS = ['*'] #開発環境ではすべてのホストからのアクセスを許可する。
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # メールの内容をコンソールに表示する。
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media') #djangoappプロジェクトフォルダ配下のmediaフォルダを指定。
+
+# 本番環境用設定
+if not DEBUG:
+    import environ
+    env = environ.Env()
+    env.read_env(os.path.join(BASE_DIR, '.env')) #.envファイルの読み込み
+
+    SECRET_KEY = config('SECRET_KEY') #.envファイルからsecretkeyを取得。
+    ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
+
+    # 以下に本番環境のSTATIC_ROOTとMEDIA_ROOTを書く。
+    STATIC_ROOT = '/usr/share/nginx/html/static'
+    MEDIA_ROOT = '/usr/share/nginx/html/media'

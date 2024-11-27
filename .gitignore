@@ -5,3 +5,8 @@ djangobook/__pycache__
 media
 local_settings.py
 .venv
+.env
+.vscode
+*.pyc
+.DS_Store
+images

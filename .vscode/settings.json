@@ -3,6 +3,8 @@
         "Detailfunc",
         "Viewfunc",
         "bookapp",
+        "bookdetail",
+        "bookpage",
         "corsheader",
         "corsheaders",
         "dburl",
@@ -19,6 +21,7 @@
         "searchword",
         "sesion",
         "simplejwt",
+        "uidb",
         "urlquote",
         "xmltodict"
     ]
