@@ -1,0 +1,102 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>詳細画面</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="h-full">
+    {% block content %}
+    <header class="mb-3 border-b border-gray-100 shadow-md">
+        <!-- ヘッダー全体 -->
+        <div class="flex justify-between py-5 mx-10 border-gray-600">
+            <!-- ヘッダーの左側 -->
+            <div class="flex space-x-5">
+                <div class="flex items-center">
+                    <a href="{% url 'api:top' %}">
+                        <span class="text-2xl font-semibold tracking-tight
+                        bg-gradient-to-r from-slate-800 via-gray-700 to-neutral-700
+                        bg-clip-text text-transparent">文献一覧作成ツール</span>
+                    </a>
+                </div>
+                <div class="flex items-center">
+                    <form action="/search/" method="post">
+                        <div class="relative w-96">
+                            {{ form.searchword }}
+                            {{ form.searchword.errors }}
+                            {% csrf_token %}
+                            <button type="submit" class="absolute right-2 top-2/4 -translate-y-2/4">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- ヘッダーの右側 -->
+            <div class="flex items-center">
+                <nav class="space-x-4">
+                    <form method="post" action="{% url 'api:logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="font-semibold">Logout</button>
+                    </form>
+                </nav>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="">
+            <form method="post" action="" class="w-full flex justify-center">{% csrf_token %}
+                <div class="sm:w-3/4 lg:w-1/2 pt-4 pb-6 bg-gray-300" value="{{ book }}">
+                    <div class="px-4">
+                        <p name="title" class="">タイトル</p>
+                        <p>{{ form.title }}</p>
+                        <input name="title" type="hidden" value="{{ object.title }}">
+                        {% for author in object.author.all %}
+                            <div>
+                                <p name="author">著者・編者</p>
+                                <p>{{ form.author.author }}</p>
+                            </div>
+                        {% endfor %}
+                        {% for type in form.type.all %}
+                            <div>
+                                <p name="type">資料種別</p>
+                                <p>{{ type.type }}</p>
+                            </div>
+                        {% endfor %}
+                        <div>
+                            <p name="publisher">出版社</p>
+                            <p>{{ form.publisher.publisher }}</p>
+                        </div>
+                        <input name="publisher" type="hidden" value="{{ object.publisher }}">
+                        {% if form.type == "記事" %}
+                            {% for magazine_title in form.magazine_title.all %}
+                                <div>
+                                    <p name="magazine_title">掲載誌</p>
+                                    <p>{{ magazine_title.magazine_title }}</p>
+                                </div>
+                            {% endfor %}
+                            <div>
+                                <p name="page">掲載ページ</p>
+                                <p>{{ form.page }}</p>
+                            </div>
+                            <input name="page" type="hidden" value="{{ object.page }}">
+                        {% endif %}
+                        <div>
+                            <p name="date">出版年</p>
+                            <p>{{ form.date }}</p>
+                        </div>
+                        <input name="date" type="hidden" value="{{ object.date }}">
+                        <div>リンク: <a name="link" href="{{ object.link }}">{{ form.link }}</a></div>
+                        <input name="link" type="hidden" value="{{ object.link }}">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
+    {% endblock content %}
+</body>

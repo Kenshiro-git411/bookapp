@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import (AuthenticationForm, UserCreationForm, PasswordChangeForm, PasswordResetForm, SetPasswordForm)
 from django.contrib.auth import get_user_model
+from .models import Book
 
 User = get_user_model()
 
@@ -70,3 +71,9 @@ class MySetPasswordForm(SetPasswordForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs['class'] = 'w-full pl-1 py-1 form-control'
+
+# 書籍等の情報を個別でupdateできるようにformをBookモデルに紐づけ作成しておく
+class BookForm(forms.ModelForm):
+    class Meta:
+        model = Book
+        fields = ['type', 'title', 'author', 'publisher', 'date', 'magazine_title', 'magazine_number', 'magazine_date', 'page']

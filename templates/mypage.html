@@ -67,7 +67,7 @@
                 <form method="post" action="">{% csrf_token %}
                     <div class=" pt-4 pb-6 border-b-2 border-dotted border-gray-600" value="{{ book }}">
                         <div class="px-4">
-                            <a href="{% url 'detail_bookpage' item.pk %}"><p name="title" class="font-bold py-2 text-xl">タイトル: {{ book.title }}</p></a>
+                            <a href="{% url 'api:update_bookpage' book.pk %}"><p name="title" class="font-bold py-2 text-xl">タイトル: {{ book.title }}</p></a>
                             <input name="title" type="hidden" value="{{ book.title }}">
                             {% for author in book.author.all %}
                                 <div><p name="author">著者・編者: {{ author.author }}</p></div>

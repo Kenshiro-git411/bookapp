@@ -20,7 +20,7 @@ from .models import Book
 from django.core.paginator import Paginator
 from django.contrib import messages
 from .models import Type, Author, Publisher, Magazine, Book
-from .forms import SearchForm, LoginForm, UserCreateForm
+from .forms import SearchForm, LoginForm, UserCreateForm, BookForm
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.signing import loads, dumps, SignatureExpired, BadSignature
 from django.template.loader import render_to_string
@@ -720,7 +720,25 @@ def export_file(request):
 
         return response
 
-def bookdetail(request, pk):
-    object = get_object_or_404(Book, pk=pk)
-    return render(request, "detail_bookpage.html", {'object':object})
+def updatebook(request, pk):
+    # Bookインスタンスの取得
+    item = get_object_or_404(Book, pk=pk)
+    # 初期フォームの作成
+    form = BookForm(instance=item)
+    # Postリクエストの場合（データ送信時）
+    if request.method == "POST":
+        form = BookForm(request.POST, instance=item)
+        if form.is_valid():
+            form.save()
+            return redirect("mypage") # 実際はマイページの開いてるページ数の場所に飛びたい
+        else:
+            print(form.erros)
+
+    # Getリクエストまたはエラー時にフォームをレンダリング
+    context = {
+        "form": form,
+        "object": item
+    }
+
+    return render(request, 'update_bookpage.html', context)
 
