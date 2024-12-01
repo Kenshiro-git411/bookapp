@@ -637,13 +637,6 @@ class PasswordReset(PasswordResetView):
     form_class = MyPasswordResetForm
     success_url = reverse_lazy('api:password_reset_done')
 
-
-    # def get_subject_template_name(self):
-    #     return 'password_reset/subject.txt'
-    # def get_email_template_name(self):
-    #     return 'password_reset/message.txt'
-
-
 # パスワード変更用URLが送られたことを示す処理
 class PasswordResetDone(PasswordResetDoneView):
     # パスワード変更用URLを送りましたページ
