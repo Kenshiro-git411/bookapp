@@ -233,7 +233,7 @@ class SearchBook(TemplateView, FormView):
         i = 0
         for item in data["rss"]["channel"]["item"]:
             book_dict = {}
-            if i < 10:
+            if i < 30:
                 for key, value in item.items():
                     if key == "title" or key == "link":
                     # タイトル
@@ -370,10 +370,10 @@ class SearchBook(TemplateView, FormView):
 # ページネーション処理
 def paginated_view(request):
     # セッションからデータを取得
-    api_data = request.session.get('book_list')[:1000]
+    api_data = request.session.get('book_list')[:500]
 
     # Paginatorの設定 (1ページに表示するアイテム数を指定)
-    paginator = Paginator(api_data, 3)  # 1ページに10件表示
+    paginator = Paginator(api_data, 10)  # 1ページに50件表示
 
     # 現在のページ番号を取得
     page_number = request.GET.get('page', 1)
@@ -479,7 +479,7 @@ def paginated_view(request):
 
         print(Book.objects.all())
 
-    return render(request, 'result.html', {'page_obj': page_obj, "form": form})
+    return render(request, 'result.html', {'page_obj': page_obj, 'form': form})
 
 # プロジェクトで使用されているUserモデルの取得（Userモデルを使用するときはget_user_modelメソッドを使用する）
 User = get_user_model()
@@ -621,7 +621,7 @@ class BookListView(ListView, FormView):
     template_name = 'mypage.html'
     context_object_name = 'book_obj'
     form_class = SearchForm
-    paginate_by = 3
+    paginate_by = 5
 
     def get_queryset(self):
         print('get_queryset関数OK')

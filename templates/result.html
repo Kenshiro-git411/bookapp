@@ -72,7 +72,7 @@
         <div class="">
             {% for book in page_obj %}
                 <form method="post" action="">{% csrf_token %}
-                    <div class=" pt-7 pb-12 border-b-2 border-dotted border-gray-600" value="{{ book }}">
+                    <div class=" pt-2 pb-6 border-b-2 border-dotted border-gray-600" value="{{ book }}">
                         <div class="px-4">
                             <p name="title" class="font-bold py-2 text-xl">タイトル: {{ book.title }}</p>
                             <input name="title" type="hidden" value="{{ book.title }}">
@@ -105,24 +105,54 @@
             {% endfor %}
         </div>
         <!-- ページネーションのページ表示 -->
-        <div class="pagination mt-4 mb-8 flex justify-center">
-            <span class="step-links">
+        <div class="pagination mt-8 mb-4 flex justify-center">
+            <ul class="pagination flex space-x-2">
+                <!-- 前のページ -->
                 {% if page_obj.has_previous %}
-                    <a href="?page=1">&laquo; first</a>
-                    <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                    <li><a href="?page={{ page_obj.previous_page_number }}" class="page-link text-primary d-inline-block">前</a></li>
+                {% else %}
+                    <li class="disabled"><div class="page-link text-secondary d-inline-block disabled" href="#">前</div></li>
                 {% endif %}
-
-                <span class="current">
-                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-                </span>
-
+                <!-- ページ番号 -->
+                {% for num in page_obj.paginator.page_range %}
+                    {% if num %}
+                        {% if num == page_obj.number %}
+                            <li class="current-page">
+                                <div class="bg-black text-white rounded px-2">
+                                    {{ num }}
+                                </div>
+                            </li>
+                        <!-- 前後3ページ以内をページ番号に表示 -->
+                        {% elif page_obj.number|add:"4" >= num and page_obj.number|add:"-4" <= num %}
+                            <li>
+                                <a href="?page={{ num }}" class="page-link text-primary d-inline-block rounded px-2">
+                                    {{ num }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                <!-- 次のページ -->
                 {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}">next</a>
-                    <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                    <li>
+                        <a href="?page={{ page_obj.next_page_number }}" class="page-link text-primary d-inline-block">
+                            次
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="disabled">
+                        <div class="page-link text-secondary d-inline-block disabled">
+                            次
+                        </div>
+                    </li>
                 {% endif %}
-            </span>
+                <!-- 現在のページと総ページ数 -->
+                <li class="pl-3 p-md-2 text-gray-600">
+                    {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                </li>
+            </ul>
         </div>
-        {% endblock content %}
+    {% endblock content %}
     </main>
 </body>
 </html>
