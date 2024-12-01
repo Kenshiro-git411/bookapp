@@ -189,3 +189,11 @@ if not DEBUG:
     # 以下に本番環境のSTATIC_ROOTとMEDIA_ROOTを書く。
     STATIC_ROOT = '/usr/share/nginx/html/static'
     MEDIA_ROOT = '/usr/share/nginx/html/media'
+
+# メール送信における情報
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = "smtp.gmail.com" # GmailのSMTPサーバー
+EMAIL_PORT = 587 # Gmailサーバーのポート番号
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = True # SMTPサーバーと通信する際に、TLS（セキュア）接続する

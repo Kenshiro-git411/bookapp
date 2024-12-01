@@ -29,6 +29,7 @@ from django.conf import settings
 from django.http import Http404, HttpResponseBadRequest
 from .forms import (LoginForm, UserCreateForm, MyPasswordChangeForm, MyPasswordResetForm, MySetPasswordForm)
 from datetime import datetime
+from django.core.mail import send_mail
 
 
 # 最初にサイトにアクセスした時に表示する画面までのアクセス
@@ -514,7 +515,7 @@ class Signup(CreateView):
         subject = render_to_string('user_create/subject.txt', context)
         message = render_to_string('user_create/message.txt', context)
 
-        user.email_user(subject, message)
+        send_mail(subject, message)
         return redirect('api:signup_done')
 
         # try:
