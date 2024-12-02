@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>アカウント設定</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
 
 </head>
-<body>
+<body class="h-full">
     <header class="mb-3 border-b border-gray-100 shadow-md">
         <!-- ヘッダー全体 -->
         <div class="flex justify-between py-5 mx-10 border-gray-600">
@@ -31,7 +33,19 @@
             </div>
         </div>
     </header>
-    <main>
+    <main class="bg-gray-500">
+        <div class="flex flex-col items-center justify-center">
+            <div class="w-1/3 bg-gray-200">
+                <div class="pb-2">
+                    <span class="text-2xl font-bold">ユーザー情報</span>
+                </div>
+                <div class="flex items-center justify-center bg-gray-400 mx-10 mb-10 pb-10 w-1/3 h-3/5 shadow-md">
+                    <div class="w-full mx-10 h-4/5">
+
+                    </div>
+                </div>
+            </div>
+        </div>
         {{ user.email }}
     </main>
 </body>

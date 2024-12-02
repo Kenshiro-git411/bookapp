@@ -174,8 +174,14 @@ except ImportError:
 # ローカル用設定
 if DEBUG:
     ALLOWED_HOSTS = ['*'] #開発環境ではすべてのホストからのアクセスを許可する。
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # メールの内容をコンソールに表示する。
+    # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # メールの内容をコンソールに表示する。
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media') #djangoappプロジェクトフォルダ配下のmediaフォルダを指定。
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = "smtp.gmail.com" # GmailのSMTPサーバー
+    EMAIL_PORT = 587 # Gmailサーバーのポート番号
+    EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+    EMAIL_USE_TLS = True # SMTPサーバーと通信する際に、TLS（セキュア）接続する
 
 # 本番環境用設定
 if not DEBUG:
@@ -183,17 +189,26 @@ if not DEBUG:
     env = environ.Env()
     env.read_env(os.path.join(BASE_DIR, '.env')) #.envファイルの読み込み
 
-    SECRET_KEY = config('SECRET_KEY') #.envファイルからsecretkeyを取得。
+    SECRET_KEY = env('SECRET_KEY') #.envファイルからsecretkeyを取得。
     ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
     # 以下に本番環境のSTATIC_ROOTとMEDIA_ROOTを書く。
     STATIC_ROOT = '/usr/share/nginx/html/static'
     MEDIA_ROOT = '/usr/share/nginx/html/media'
 
+    # メールに関する情報
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = "smtp.gmail.com" # GmailのSMTPサーバー
+    EMAIL_PORT = 587 # Gmailサーバーのポート番号
+    EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+    EMAIL_USE_TLS = True # SMTPサーバーと通信する際に、TLS（セキュア）接続する
+
 # メール送信における情報
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = "smtp.gmail.com" # GmailのSMTPサーバー
-EMAIL_PORT = 587 # Gmailサーバーのポート番号
-EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
-EMAIL_USE_TLS = True # SMTPサーバーと通信する際に、TLS（セキュア）接続する
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = "smtp.gmail.com" # GmailのSMTPサーバー
+# EMAIL_PORT = 587 # Gmailサーバーのポート番号
+# EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+# EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+# EMAIL_USE_TLS = True # SMTPサーバーと通信する際に、TLS（セキュア）接続する

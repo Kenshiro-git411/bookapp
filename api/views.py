@@ -515,7 +515,7 @@ class Signup(CreateView):
         subject = render_to_string('user_create/subject.txt', context)
         message = render_to_string('user_create/message.txt', context)
 
-        send_mail(subject, message)
+        user.email_user(subject, message)
         return redirect('api:signup_done')
 
         # try:
@@ -589,7 +589,7 @@ class UserLogin(LoginView):
     #         print('ユーザーが登録されていることを確認できました。')
     #         login(self.request, user) # ログイン処理
     #         return redirect('api:top')
-        
+
     #     except IntegrityError:
     #         # userのログインが失敗する場合
     #         print('そのユーザーは登録されておりません。')
@@ -602,7 +602,7 @@ class UserLogin(LoginView):
     # フォームによるログイン認証
     form_class = LoginForm
     template_name = "../templates/login.html"
-    
+
 class UserLogout(LogoutView):
     template_name = 'logout.html' #ログアウト後に表示するテンプレート
 
@@ -715,7 +715,7 @@ def export_file(request):
         return response
 
 def updatebook(request, pk):
-    # Bookインスタンスの取得
+     # Bookインスタンスの取得
     item = get_object_or_404(Book, pk=pk)
     # 初期フォームの作成
     form = BookForm(instance=item)
