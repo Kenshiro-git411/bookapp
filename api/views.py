@@ -717,20 +717,22 @@ def export_file(request):
 def updatebook(request, pk):
      # Bookインスタンスの取得
     object = get_object_or_404(Book, pk=pk)
+    form = SearchForm()
     # 初期フォームの作成
-    form = BookForm(instance=object)
+    book_form = BookForm(instance=object)
     # Postリクエストの場合（データ送信時）
     if request.method == "POST":
-        form = BookForm(request.POST, instance=object)
-        if form.is_valid():
-            form.save()
+        book_form = BookForm(request.POST, instance=object)
+        if book_form.is_valid():
+            book_form.save()
             return redirect("mypage") # 実際はマイページの開いてるページ数の場所に飛びたい
         else:
-            print(form.errors)
+            print(book_form.errors)
 
     # Getリクエストまたはエラー時にフォームをレンダリング
     context = {
         "form": form,
+        "book_form": book_form,
         "object": object
     }
 
