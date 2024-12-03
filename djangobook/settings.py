@@ -173,6 +173,11 @@ except ImportError:
 
 # ローカル用設定
 if DEBUG:
+    import environ
+
+    env = environ.Env()
+    env.read_env(os.path.join(BASE_DIR, '.env'))  # .envファイルの読み込み
+    SECRET_KEY = env('SECRET_KEY')
     ALLOWED_HOSTS = ['*'] #開発環境ではすべてのホストからのアクセスを許可する。
     # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # メールの内容をコンソールに表示する。
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media') #djangoappプロジェクトフォルダ配下のmediaフォルダを指定。

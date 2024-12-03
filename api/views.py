@@ -726,7 +726,7 @@ def updatebook(request, pk):
             form.save()
             return redirect("mypage") # 実際はマイページの開いてるページ数の場所に飛びたい
         else:
-            print(form.erros)
+            print(form.errors)
 
     # Getリクエストまたはエラー時にフォームをレンダリング
     context = {

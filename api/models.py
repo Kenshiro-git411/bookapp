@@ -89,9 +89,15 @@ class Type(models.Model):
 class Author(models.Model):
     author = models.CharField(max_length=20)
 
+    def __str__(self):
+        return self.author
+
 # 出版社テーブル
 class Publisher(models.Model):
     publisher = models.CharField(max_length=20)
+
+    def __str__(self):
+        return self.publisher
 
 # 雑誌テーブル
 class Magazine(models.Model):
