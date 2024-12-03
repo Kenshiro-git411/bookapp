@@ -606,15 +606,15 @@ class UserLogin(LoginView):
 class UserLogout(LogoutView):
     template_name = 'logout.html' #ログアウト後に表示するテンプレート
 
-def Detailfunc(request):
-    # requestの中身にpkが振られているから、それに該当するものを表示させる。
-    print(request.__dict__)
-    print(vars(request))
-    json_str = request.body
-    json_data = json.loads(json_str)
-    print(json_data)
-    # if request.method == 'GET':
-    return redirect('detail')
+# def Detailfunc(request):
+#     # requestの中身にpkが振られているから、それに該当するものを表示させる。
+#     print(request.__dict__)
+#     print(vars(request))
+#     json_str = request.body
+#     json_data = json.loads(json_str)
+#     print(json_data)
+#     # if request.method == 'GET':
+#     return redirect('detail')
 
 # Mypageボタン処理
 class BookListView(ListView, FormView):
@@ -716,12 +716,12 @@ def export_file(request):
 
 def updatebook(request, pk):
      # Bookインスタンスの取得
-    item = get_object_or_404(Book, pk=pk)
+    object = get_object_or_404(Book, pk=pk)
     # 初期フォームの作成
-    form = BookForm(instance=item)
+    form = BookForm(instance=object)
     # Postリクエストの場合（データ送信時）
     if request.method == "POST":
-        form = BookForm(request.POST, instance=item)
+        form = BookForm(request.POST, instance=object)
         if form.is_valid():
             form.save()
             return redirect("mypage") # 実際はマイページの開いてるページ数の場所に飛びたい
@@ -731,7 +731,7 @@ def updatebook(request, pk):
     # Getリクエストまたはエラー時にフォームをレンダリング
     context = {
         "form": form,
-        "object": item
+        "object": object
     }
 
     return render(request, 'update_bookpage.html', context)

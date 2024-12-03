@@ -65,7 +65,7 @@
                         {% for type in form.type.all %}
                             <div>
                                 <p name="type">資料種別</p>
-                                <p>{{ type.type }}</p>
+                                <p>{{ form.type }}</p>
                             </div>
                         {% endfor %}
                         <div>
@@ -77,7 +77,7 @@
                             {% for magazine_title in form.magazine_title.all %}
                                 <div>
                                     <p name="magazine_title">掲載誌</p>
-                                    <p>{{ magazine_title.magazine_title }}</p>
+                                    <p>{{ form.magazine_title }}</p>
                                 </div>
                             {% endfor %}
                             <div>
