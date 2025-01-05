@@ -1,13 +1,14 @@
-import os
+import os, environ
 from pathlib import Path
 from datetime import timedelta
 from decouple import config
 from dj_database_url import parse
-import environ
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+# print(BASE_DIR)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -16,8 +17,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECRET_KEY = config('SECRET_KEY')
 
 # DEBUGについては.envファイルに書いてあるため、configファイル(.envファイル)を指定するように書いておく。
-DEBUG = config('DEBUG', default=False, cast=bool)
+env = environ.Env()
+env.read_env(os.path.join(BASE_DIR, '.env')) # 環境変数ファイル（.env）の読み込み
+DEBUG = env('DEBUG', default=False, cast=bool)
+print(DEBUG)
 
+# .env ファイルのパスを指定
+env_path = os.path.join(BASE_DIR, '.env')
+
+# パスが正しいか確認
+if os.path.exists(env_path):
+    print(f".env ファイルのパス: {env_path} は存在します")
+else:
+    print(f".env ファイルのパス: {env_path} が存在しません")
 
 # Application definition
 INSTALLED_APPS = [
@@ -139,7 +151,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
 #開発環境
 if DEBUG:
     STATICFILES_DIRS = (
@@ -147,16 +159,16 @@ if DEBUG:
     )
 #本番環境
 else:
-    STATIC_ROOT = BASE_DIR / 'static'
+    STATIC_ROOT = os.path.join(BASE_DIR, STATIC_URL)
 
 # Mediaファイル
-MEDIA_URL = '/media/'
+MEDIA_URL = 'media/'
 # 開発環境
 if DEBUG:
-    MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
+    MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
 # 本番環境
 else:
-    MEDIA_ROOT = BASE_DIR / 'media'
+    MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -172,9 +184,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # ログイン後のリダイレクト先
 LOGIN_REDIRECT_URL = 'api:top'
 
-# CSRFトークンをチェックする際、指定されたものは信頼あるリクエストとして扱う
-CSRF_TRUSTED_ORIGINS = [ 'http://127.0.0.1:8000', 'http://localhost', ]
-
 # メール送信のバックエンドを指定
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
@@ -186,12 +195,17 @@ AUTH_USER_MODEL = 'api.User'
 # except ImportError:
 #     pass
 
+# CSRFトークンをチェックする際、指定されたものは信頼あるリクエストとして扱う
+# .envからCSRF_TRUSTED_ORIGINSを取得
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS')
+
 # ローカル用設定
 if DEBUG:
-    ALLOWED_HOSTS = ['localhost','127.0.0.1',]
-    env = environ.Env()
-    env.read_env(os.path.join(BASE_DIR, '.env'))
+    # print('ローカルで起動します')
+    ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0:8000', 'localhost']
+
     SECRET_KEY = env('SECRET_KEY')
+
     # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # メールの内容をコンソールに表示する。
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media') #djangoappプロジェクトフォルダ配下のmediaフォルダを指定。
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -203,17 +217,33 @@ if DEBUG:
 
 # 本番環境用設定
 if not DEBUG:
-    env = environ.Env()
-    env.read_env(os.path.join(BASE_DIR, '.env')) #.envファイルの読み込み
+    # print('本番環境で起動します')
 
-    SECRET_KEY = env('SECRET_KEY') #.envファイルからsecretkeyを取得。
-    ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
+    #.envファイルからsecretkeyを取得
+    SECRET_KEY = env('SECRET_KEY') 
+
+    ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
 
     # メールに関する情報
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = 'smtp.gmail.com' # GmailのSMTPサーバー
     EMAIL_PORT = 587 # Gmailサーバーのポート番号
     EMAIL_HOST_USER = env('EMAIL_HOST_USER')
     EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
     EMAIL_USE_TLS = True # SMTPサーバーと通信する際に、TLS（セキュア）接続する
 
+# sentryの導入でエラーを検知する（sentryのウェブサイトでエラーの確認可能）
+sentry_sdk.init(
+    dsn="https://ac38e1301e008054ab6b61f93881b2a0@o4508585854238720.ingest.us.sentry.io/4508585858301952",
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for tracing.
+    integrations=[DjangoIntegration()],
+    traces_sample_rate=1.0,
+    send_default_pii=True,
+    _experiments={
+        # Set continuous_profiling_auto_start to True
+        # to automatically start the profiler on when
+        # possible.
+        "continuous_profiling_auto_start": True,
+    },
+)
