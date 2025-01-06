@@ -19,10 +19,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # DEBUGについては.envファイルに書いてあるため、configファイル(.envファイル)を指定するように書いておく。
 env = environ.Env()
 env.read_env(os.path.join(BASE_DIR, '.env')) # 環境変数ファイル（.env）の読み込み
-# DEBUG = env('DEBUG', default=False, cast=bool)
-def str_to_bool(value):
-    return value.lower() in ['true', '1', 'yes']
-DEBUG = str_to_bool(os.environ.get('DEBUG', 'False'))
+DEBUG = env('DEBUG', default=False, cast=bool)
+# def str_to_bool(value):
+#     return value.lower() in ['true', '1', 'yes']
+# DEBUG = str_to_bool(os.environ.get('DEBUG', 'False'))
 print(DEBUG)
 
 # .env ファイルのパスを指定
