@@ -19,17 +19,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # DEBUGについては.envファイルに書いてあるため、configファイル(.envファイル)を指定するように書いておく。
 env = environ.Env()
 env.read_env(os.path.join(BASE_DIR, '.env')) # 環境変数ファイル（.env）の読み込み
-DEBUG = env('DEBUG', default=False, cast=bool)
+# DEBUG = env('DEBUG', default=False, cast=bool)
+def str_to_bool(value):
+    return value.lower() in ['true', '1', 'yes']
+DEBUG = str_to_bool(os.environ.get('DEBUG', 'False'))
 print(DEBUG)
 
 # .env ファイルのパスを指定
 env_path = os.path.join(BASE_DIR, '.env')
-
-# パスが正しいか確認
-if os.path.exists(env_path):
-    print(f".env ファイルのパス: {env_path} は存在します")
-else:
-    print(f".env ファイルのパス: {env_path} が存在しません")
 
 # Application definition
 INSTALLED_APPS = [
@@ -113,8 +110,9 @@ if DEBUG:
     }
 else:
     DATABASES = {
-        'default':parse(config('DATABASE_URL'))
+        'default':parse(env('DATABASE_URL'))
     }
+# print(env('DATABASE_URL'))
 
 
 # Password validation
@@ -203,6 +201,7 @@ CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS')
 if DEBUG:
     # print('ローカルで起動します')
     ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0:8000', 'localhost']
+    print(ALLOWED_HOSTS)
 
     SECRET_KEY = env('SECRET_KEY')
 

@@ -56,7 +56,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         ),
     )
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
-
+    # deleted_at = models.DateTimeField(null=True, blank=True)
     objects = CustomUserManager()
 
     EMAIL_FIELD = 'email'

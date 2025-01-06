@@ -6,7 +6,7 @@ from django.views.generic import TemplateView, CreateView, FormView, DetailView
 from django.contrib.auth.views import LoginView, LogoutView, PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from urllib.parse import quote
 import xml.etree.ElementTree as ET
 import json, xmltodict
@@ -30,7 +30,8 @@ from django.http import Http404, HttpResponseBadRequest
 from .forms import (LoginForm, UserCreateForm, MyPasswordChangeForm, MyPasswordResetForm, MySetPasswordForm)
 from datetime import datetime
 from django.core.mail import send_mail
-
+from django.contrib.auth.decorators import login_required
+from django.utils.timezone import now
 
 # 最初にサイトにアクセスした時に表示する画面までのアクセス
 def SearchViewfunc(request):
@@ -736,3 +737,17 @@ def updatebook(request, pk):
 
     return render(request, 'update_bookpage.html', context)
 
+# 退会処理
+@login_required
+def deactivate_user(request):
+    if request.method == "POST":
+        user = request.user
+        user.is_active = False
+        user.deleted_at = now()
+        user.save()
+        logout(request)
+        return redirect('top')
+    elif request.method == "GET":
+        return render(request, "deactivate_user.html")
+    else:
+        return HttpResponseForbidden("Invalid request method")
