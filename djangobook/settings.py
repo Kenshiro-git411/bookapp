@@ -233,7 +233,7 @@ if not DEBUG:
 
 # sentryの導入でエラーを検知する（sentryのウェブサイトでエラーの確認可能）
 sentry_sdk.init(
-    dsn="https://ac38e1301e008054ab6b61f93881b2a0@o4508585854238720.ingest.us.sentry.io/4508585858301952",
+    dsn=env('DSN'),
     # Set traces_sample_rate to 1.0 to capture 100%
     # of transactions for tracing.
     integrations=[DjangoIntegration()],
